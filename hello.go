@@ -2,17 +2,23 @@ package main
 
 import "fmt"
 
-const englishPrefix = "Hello, "
-const spanishPrefix = "Hola, "
-
 func Hello(name, language string) string {
 	if name == "" {
 		name = "World"
 	}
-	if language == "Spanish" {
-		return spanishPrefix + name
+	return prefix(language) + name
+}
+
+func prefix(language string) (prefix string) {
+	switch language {
+	case "French":
+		prefix = "Bonjour, "
+	case "Spanish":
+		prefix = "Hola, "
+	default:
+		prefix = "Hello, "
 	}
-	return englishPrefix + name
+	return
 }
 
 func main() {
