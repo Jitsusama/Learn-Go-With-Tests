@@ -8,6 +8,9 @@
 		},
 		{
 			"path": "iteration"
+		},
+		{
+			"path": "arrays"
 		}
 	],
 	"settings": {}
