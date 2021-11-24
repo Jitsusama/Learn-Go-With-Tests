@@ -17,6 +17,9 @@
 		},
 		{
 			"path": "pointers"
+		},
+		{
+			"path": "maps"
 		}
 	],
 	"settings": {}
