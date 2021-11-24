@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "hello"
+		},
+		{
+			"path": "integers"
+		},
+		{
+			"path": "iteration"
+		}
+	],
+	"settings": {}
+}
