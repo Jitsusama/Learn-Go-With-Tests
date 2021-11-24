@@ -1,6 +1,9 @@
 package structs
 
-import "testing"
+import (
+	"reflect"
+	"testing"
+)
 
 func TestPerimeter(t *testing.T) {
 	rectangle := Rectangle{10.0, 10.0}
@@ -23,9 +26,11 @@ func TestArea(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		got := test.shape.Area()
-		if got != test.want {
-			t.Errorf("got %g want %g", got, test.want)
-		}
+		t.Run(reflect.TypeOf(test.shape).Name(), func(t *testing.T) {
+			got := test.shape.Area()
+			if got != test.want {
+				t.Errorf("%#v got %g want %g", test.shape, got, test.want)
+			}
+		})
 	}
 }
