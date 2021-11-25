@@ -23,6 +23,9 @@
 		},
 		{
 			"path": "di"
+		},
+		{
+			"path": "mocking"
 		}
 	],
 	"settings": {}
