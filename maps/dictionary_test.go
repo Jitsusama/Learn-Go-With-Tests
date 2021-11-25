@@ -22,11 +22,23 @@ func TestAdd(t *testing.T) {
 	word := "test"
 	definition := "this is just a test"
 
-	dictionary := Dictionary{}
+	t.Run("add a new word", func(t *testing.T) {
+		dictionary := Dictionary{}
 
-	dictionary.Add(word, definition)
+		err := dictionary.Add(word, definition)
 
-	assertDefinition(t, dictionary, word, definition)
+		assertError(t, err, nil)
+		assertDefinition(t, dictionary, word, definition)
+	})
+
+	t.Run("complain when redefining a word", func(t *testing.T) {
+		dictionary := Dictionary{word: definition}
+
+		err := dictionary.Add(word, "new definition")
+
+		assertError(t, err, ErrWordExists)
+		assertDefinition(t, dictionary, word, definition)
+	})
 }
 
 func assertError(t testing.TB, got, want error) {
