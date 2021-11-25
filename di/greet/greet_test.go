@@ -1,4 +1,4 @@
-package di
+package greet
 
 import (
 	"bytes"
