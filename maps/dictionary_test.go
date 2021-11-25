@@ -31,13 +31,36 @@ func TestAdd(t *testing.T) {
 		assertDefinition(t, dictionary, word, definition)
 	})
 
-	t.Run("complain when redefining a word", func(t *testing.T) {
+	t.Run("complains when redefining a word", func(t *testing.T) {
 		dictionary := Dictionary{word: definition}
 
 		err := dictionary.Add(word, "new definition")
 
 		assertError(t, err, ErrWordExists)
 		assertDefinition(t, dictionary, word, definition)
+	})
+}
+
+func TestUpdate(t *testing.T) {
+	word := "test"
+	originalDefinition := "this is just a test"
+	updatedDefinition := "new definition"
+
+	t.Run("updates an existing word", func(t *testing.T) {
+		dictionary := Dictionary{word: originalDefinition}
+
+		err := dictionary.Update(word, updatedDefinition)
+
+		assertError(t, err, nil)
+		assertDefinition(t, dictionary, word, updatedDefinition)
+	})
+
+	t.Run("complains when word does not exist", func(t *testing.T) {
+		dictionary := Dictionary{}
+
+		err := dictionary.Update(word, originalDefinition)
+
+		assertError(t, err, ErrWordDoesNotExist)
 	})
 }
 
