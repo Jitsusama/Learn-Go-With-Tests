@@ -6,5 +6,6 @@ import (
 )
 
 func main() {
-	countdown.Countdown(os.Stdout)
+	sleeper := &countdown.DefaultSleeper{}
+	countdown.Countdown(os.Stdout, sleeper)
 }
