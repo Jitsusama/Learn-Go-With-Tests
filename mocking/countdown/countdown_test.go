@@ -25,16 +25,13 @@ func TestCountdown(t *testing.T) {
 
 	Countdown(spy, spy)
 
-	wantedOutput := `3
-2
-1
-Go!`
-	wantedCalls := []string{
-		"sleep", "write", "sleep", "write", "sleep", "write",
-		"sleep", "write",
-	}
+	wantedOutput := "3\n2\n1\nGo!"
 	if spy.Output.String() != wantedOutput {
 		t.Errorf("got %q want %q", spy.Output, wantedOutput)
+	}
+	wantedCalls := []string{
+		"sleep", "write", "sleep", "write",
+		"sleep", "write", "sleep", "write",
 	}
 	if !reflect.DeepEqual(wantedCalls, spy.Calls) {
 		t.Errorf("wanted calls %v got %v", wantedCalls, spy.Calls)
