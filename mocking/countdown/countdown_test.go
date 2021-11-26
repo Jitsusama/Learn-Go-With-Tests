@@ -2,32 +2,41 @@ package countdown
 
 import (
 	"bytes"
+	"reflect"
 	"testing"
 )
 
-type SpySleeper struct {
-	Calls int
+type Spy struct {
+	Calls  []string
+	Output *bytes.Buffer
 }
 
-func (s *SpySleeper) Sleep() {
-	s.Calls++
+func (s *Spy) Sleep() {
+	s.Calls = append(s.Calls, "sleep")
+}
+
+func (s *Spy) Write(p []byte) (n int, err error) {
+	s.Calls = append(s.Calls, "write")
+	return s.Output.Write(p)
 }
 
 func TestCountdown(t *testing.T) {
-	buffer := &bytes.Buffer{}
-	spySleeper := &SpySleeper{}
+	spy := &Spy{Output: &bytes.Buffer{}}
 
-	Countdown(buffer, spySleeper)
+	Countdown(spy, spy)
 
-	got := buffer.String()
-	want := `3
+	wantedOutput := `3
 2
 1
 Go!`
-	if got != want {
-		t.Errorf("got %q want %q", got, want)
+	wantedCalls := []string{
+		"sleep", "write", "sleep", "write", "sleep", "write",
+		"sleep", "write",
 	}
-	if spySleeper.Calls != 4 {
-		t.Errorf("not enough calls to sleeper; want 4 got %d", spySleeper.Calls)
+	if spy.Output.String() != wantedOutput {
+		t.Errorf("got %q want %q", spy.Output, wantedOutput)
+	}
+	if !reflect.DeepEqual(wantedCalls, spy.Calls) {
+		t.Errorf("wanted calls %v got %v", wantedCalls, spy.Calls)
 	}
 }
