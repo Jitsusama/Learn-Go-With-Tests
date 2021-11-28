@@ -26,6 +26,9 @@
 		},
 		{
 			"path": "mocking"
+		},
+		{
+			"path": "concurrency"
 		}
 	],
 	"settings": {}
