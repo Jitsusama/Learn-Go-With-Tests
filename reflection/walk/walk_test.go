@@ -42,6 +42,11 @@ func TestWalk(t *testing.T) {
 			&Person{"Chris", Profile{33, "London"}},
 			[]string{"Chris", "London"},
 		},
+		{
+			"slices of structs",
+			[]Profile{{33, "London"}, {34, "Reykjavik"}},
+			[]string{"London", "Reykjavik"},
+		},
 	}
 
 	for _, test := range cases {
