@@ -12,6 +12,9 @@ func TestWalk(t *testing.T) {
 		channel <- Profile{34, "Katowice"}
 		close(channel)
 	}()
+	function := func() (Profile, Profile) {
+		return Profile{33, "Berlin"}, Profile{34, "Katowice"}
+	}
 	cases := []struct {
 		Name          string
 		Input         interface{}
@@ -66,6 +69,11 @@ func TestWalk(t *testing.T) {
 		{
 			"channel receiving structs",
 			channel,
+			[]string{"Berlin", "Katowice"},
+		},
+		{
+			"function returning structs",
+			function,
 			[]string{"Berlin", "Katowice"},
 		},
 	}

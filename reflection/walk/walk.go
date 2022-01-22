@@ -16,6 +16,10 @@ func walk(x interface{}, fn func(input string)) {
 		for v, ok := val.Recv(); ok; v, ok = val.Recv() {
 			walk(v.Interface(), fn)
 		}
+	case reflect.Func:
+		for _, res := range val.Call(nil) {
+			walk(res.Interface(), fn)
+		}
 	case reflect.Struct:
 		for i := 0; i < val.NumField(); i++ {
 			walk(val.Field(i).Interface(), fn)
