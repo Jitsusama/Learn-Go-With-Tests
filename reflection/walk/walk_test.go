@@ -6,6 +6,12 @@ import (
 )
 
 func TestWalk(t *testing.T) {
+	channel := make(chan Profile)
+	go func() {
+		channel <- Profile{33, "Berlin"}
+		channel <- Profile{34, "Katowice"}
+		close(channel)
+	}()
 	cases := []struct {
 		Name          string
 		Input         interface{}
@@ -56,6 +62,11 @@ func TestWalk(t *testing.T) {
 			"maps of structs",
 			map[string]string{"Foo": "Bar", "Baz": "Boz"},
 			[]string{"Bar", "Boz"},
+		},
+		{
+			"channel receiving structs",
+			channel,
+			[]string{"Berlin", "Katowice"},
 		},
 	}
 
