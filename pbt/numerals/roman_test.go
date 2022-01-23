@@ -9,6 +9,7 @@ func TestRomainNumerals(t *testing.T) {
 		Want        string
 	}{
 		{"1 = I", 1, "I"}, {"2 = II", 2, "II"}, {"3 = III", 3, "III"},
+		{"4 = IV", 4, "IV"},
 	}
 
 	for _, test := range cases {
