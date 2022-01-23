@@ -8,7 +8,7 @@ func TestRomainNumerals(t *testing.T) {
 		Arabic      int
 		Want        string
 	}{
-		{"1 = I", 1, "I"}, {"2 = II", 2, "II"},
+		{"1 = I", 1, "I"}, {"2 = II", 2, "II"}, {"3 = III", 3, "III"},
 	}
 
 	for _, test := range cases {
