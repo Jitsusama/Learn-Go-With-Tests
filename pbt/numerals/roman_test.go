@@ -30,7 +30,7 @@ func TestArabicToRomanConversions(t *testing.T) {
 }
 
 func TestRomanToArabicConversions(t *testing.T) {
-	for _, c := range conversionTests[:1] {
+	for _, c := range conversionTests[:2] {
 		d := fmt.Sprintf("%v equals %04d", c.Roman, c.Arabic)
 		t.Run(d, func(t *testing.T) {
 			if got := ConvertToArabic(c.Roman); got != c.Arabic {
