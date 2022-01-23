@@ -4,12 +4,18 @@ import "strings"
 
 func ConvertToRoman(arabic int) string {
 	var roman strings.Builder
-	for i := arabic; i > 0; i-- {
-		if i == 4 {
+	for arabic > 0 {
+		switch {
+		case arabic > 4:
+			roman.WriteString("V")
+			arabic -= 5
+		case arabic > 3:
 			roman.WriteString("IV")
-			break
+			arabic -= 4
+		default:
+			roman.WriteString("I")
+			arabic--
 		}
-		roman.WriteString("I")
 	}
 	return roman.String()
 }
