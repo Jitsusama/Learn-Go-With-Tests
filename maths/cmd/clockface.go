@@ -19,7 +19,10 @@ func main() {
      height="100%%"
      viewBox="0 0 300 300"
      version="2.0">
-	 <circle cx="150" cy="150" r="100" style="fill:#fff;stroke:#000;stroke-width:5px;"/>
-	 <line x1="150" y1="150" x2="%f" y2="%f" style="fill:none;stroke:#f00;stroke-width:3px;"/>
-</svg>`, secondHand.X, secondHand.Y))
+    <circle cx="150" cy="150" r="100"
+          style="fill:#fff;stroke:#000;stroke-width:5px;"/>
+    <line x1="150" y1="150" x2="%f" y2="%f"
+          style="fill:none;stroke:#f00;stroke-width:3px;"/>
+</svg>
+`, secondHand.X, secondHand.Y))
 }
