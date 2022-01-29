@@ -31,8 +31,33 @@ func TestSecondHand(t *testing.T) {
 			clockface.SvgWriter(&buffer, c.time)
 			xml.Unmarshal(buffer.Bytes(), &svg)
 
-			if svg.Line[0] != c.line {
-				t.Errorf("want %v got %v", c.line, svg.Line[0])
+			if len(svg.Line) < 1 || svg.Line[0] != c.line {
+				t.Errorf("want %v got %v", c.line, svg.Line)
+			}
+		})
+	}
+}
+
+func TestMinuteHand(t *testing.T) {
+	cases := []struct {
+		time time.Time
+		line Line
+	}{
+		{
+			parseTime("2022-01-29T00:00:00Z"),
+			Line{X1: 150, X2: 150, Y1: 150, Y2: 70},
+		},
+	}
+	for _, c := range cases {
+		t.Run(c.time.Format("15:04:05"), func(t *testing.T) {
+			buffer := bytes.Buffer{}
+			svg := Svg{}
+
+			clockface.SvgWriter(&buffer, c.time)
+			xml.Unmarshal(buffer.Bytes(), &svg)
+
+			if len(svg.Line) < 2 || svg.Line[1] != c.line {
+				t.Errorf("want %v got %v", c.line, svg.Line)
 			}
 		})
 	}
