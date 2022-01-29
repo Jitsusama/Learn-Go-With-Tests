@@ -9,8 +9,10 @@ import (
 
 func TestNewPosts(t *testing.T) {
 	fs := fstest.MapFS{
-		"hello world.md":  {Data: []byte("Title: Post 1")},
-		"hello-world2.md": {Data: []byte("Title: Post 2")},
+		"01-hello.md": {Data: []byte(`Title: Hello
+Description: Hello World!`)},
+		"02-yesterday.md": {Data: []byte(`Title: Yesterday
+Description: Was quite the day.`)},
 	}
 
 	got, err := posts.NewPostsFromFs(fs)
@@ -23,8 +25,12 @@ func TestNewPosts(t *testing.T) {
 		t.Errorf("got %d posts want %d posts", len(got), len(fs))
 	}
 
-	expected := posts.Post{Title: "Post 1"}
-	if !reflect.DeepEqual(got[0], expected) {
+	expected := posts.Post{Title: "Hello", Description: "Hello World!"}
+	if !postsEqual(got[0], expected) {
 		t.Errorf("got %+v want %+v", got[0], expected)
 	}
+}
+
+func postsEqual(actual posts.Post, expected posts.Post) bool {
+	return reflect.DeepEqual(actual, expected)
 }

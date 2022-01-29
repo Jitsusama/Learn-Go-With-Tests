@@ -1,12 +1,15 @@
 package posts
 
 import (
-	"io"
+	"bufio"
+	"fmt"
 	"io/fs"
+	"strings"
 )
 
 type Post struct {
-	Title string
+	Title       string
+	Description string
 }
 
 func NewPostsFromFs(filesystem fs.FS) ([]Post, error) {
@@ -47,10 +50,15 @@ func getPost(filesystem fs.FS, filename string) (Post, error) {
 	}
 	defer file.Close()
 
-	d, err := io.ReadAll(file)
-	if err != nil {
-		return Post{}, err
+	scanner := bufio.NewScanner(file)
+
+	getMeta := func(name string) string {
+		scanner.Scan()
+		return strings.TrimPrefix(scanner.Text(), fmt.Sprintf("%s: ", name))
 	}
 
-	return Post{Title: string(d)[7:]}, nil
+	return Post{
+		Title:       getMeta("Title"),
+		Description: getMeta("Description"),
+	}, nil
 }
