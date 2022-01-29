@@ -44,8 +44,12 @@ func TestMinuteHand(t *testing.T) {
 		line Line
 	}{
 		{
-			parseTime("2022-01-29T00:00:00Z"),
-			Line{X1: 150, X2: 150, Y1: 150, Y2: 70},
+			parseTime("2022-01-29T00:30:00Z"),
+			Line{X1: 150, X2: 150, Y1: 150, Y2: 230},
+		},
+		{
+			parseTime("2022-01-29T00:45:00Z"),
+			Line{X1: 150, X2: 70, Y1: 150, Y2: 150},
 		},
 	}
 	for _, c := range cases {
