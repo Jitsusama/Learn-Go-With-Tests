@@ -9,19 +9,12 @@ import (
 	"github.com/jitsusama/lgwt/maths/clockface"
 )
 
-func TestSecondHand(t *testing.T) {
+func TestHourHand(t *testing.T) {
 	cases := []struct {
 		time time.Time
 		line Line
 	}{
-		{
-			parseTime("2022-01-29T00:00:00Z"),
-			Line{X1: 150, X2: 150, Y1: 150, Y2: 60},
-		},
-		{
-			parseTime("2022-01-29T00:00:30Z"),
-			Line{X1: 150, X2: 150, Y1: 150, Y2: 150 + 90},
-		},
+		{parseTime("06:00:00"), Line{X1: 150, X2: 150, Y1: 150, Y2: 200}},
 	}
 	for _, c := range cases {
 		t.Run(c.time.Format("15:04:05"), func(t *testing.T) {
@@ -31,7 +24,7 @@ func TestSecondHand(t *testing.T) {
 			clockface.SvgWriter(&buffer, c.time)
 			xml.Unmarshal(buffer.Bytes(), &svg)
 
-			if len(svg.Line) < 1 || svg.Line[0] != c.line {
+			if len(svg.Line) < 3 || svg.Line[2] != c.line {
 				t.Errorf("want %v got %v", c.line, svg.Line)
 			}
 		})
@@ -43,14 +36,8 @@ func TestMinuteHand(t *testing.T) {
 		time time.Time
 		line Line
 	}{
-		{
-			parseTime("2022-01-29T00:30:00Z"),
-			Line{X1: 150, X2: 150, Y1: 150, Y2: 230},
-		},
-		{
-			parseTime("2022-01-29T00:45:00Z"),
-			Line{X1: 150, X2: 70, Y1: 150, Y2: 150},
-		},
+		{parseTime("00:30:00"), Line{X1: 150, X2: 150, Y1: 150, Y2: 230}},
+		{parseTime("00:45:00"), Line{X1: 150, X2: 70, Y1: 150, Y2: 150}},
 	}
 	for _, c := range cases {
 		t.Run(c.time.Format("15:04:05"), func(t *testing.T) {
@@ -67,9 +54,32 @@ func TestMinuteHand(t *testing.T) {
 	}
 }
 
-func parseTime(isoTime string) time.Time {
-	ts, _ := time.Parse(time.RFC3339, isoTime)
-	return ts
+func TestSecondHand(t *testing.T) {
+	cases := []struct {
+		time time.Time
+		line Line
+	}{
+		{parseTime("00:00:00"), Line{X1: 150, X2: 150, Y1: 150, Y2: 60}},
+		{parseTime("00:00:30"), Line{X1: 150, X2: 150, Y1: 150, Y2: 150 + 90}},
+	}
+	for _, c := range cases {
+		t.Run(c.time.Format("15:04:05"), func(t *testing.T) {
+			buffer := bytes.Buffer{}
+			svg := Svg{}
+
+			clockface.SvgWriter(&buffer, c.time)
+			xml.Unmarshal(buffer.Bytes(), &svg)
+
+			if len(svg.Line) < 1 || svg.Line[0] != c.line {
+				t.Errorf("want %v got %v", c.line, svg.Line)
+			}
+		})
+	}
+}
+
+func parseTime(timestamp string) time.Time {
+	value, _ := time.Parse("15:04:05", timestamp)
+	return value
 }
 
 type Svg struct {
