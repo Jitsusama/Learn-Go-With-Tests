@@ -10,6 +10,7 @@ import (
 type Post struct {
 	Title       string
 	Description string
+	Tags        []string
 }
 
 func NewPostsFromFs(filesystem fs.FS) ([]Post, error) {
@@ -60,5 +61,6 @@ func getPost(filesystem fs.FS, filename string) (Post, error) {
 	return Post{
 		Title:       getMeta("Title"),
 		Description: getMeta("Description"),
+		Tags:        strings.Split(getMeta("Tags"), ", "),
 	}, nil
 }
