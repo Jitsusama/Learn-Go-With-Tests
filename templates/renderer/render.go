@@ -1,9 +1,13 @@
 package renderer
 
 import (
-	"fmt"
+	"embed"
+	"html/template"
 	"io"
 )
+
+//go:embed "*.tmpl"
+var templates embed.FS
 
 type Post struct {
 	Title, Description, Body string
@@ -11,6 +15,12 @@ type Post struct {
 }
 
 func Render(w io.Writer, p Post) error {
-	_, err := fmt.Fprintf(w, "<h1>%s</h1>", p.Title)
-	return err
+	template, err := template.ParseFS(templates, "*.html.tmpl")
+	if err != nil {
+		return err
+	}
+	if err := template.Execute(w, p); err != nil {
+		return err
+	}
+	return nil
 }

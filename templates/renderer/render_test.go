@@ -20,7 +20,9 @@ func TestRender(t *testing.T) {
 		}
 		actual := buf.String()
 
-		expected := "<h1>Hello World</h1>"
+		expected := `<h1>Hello World</h1>
+<p>This is an introduction to my blog!</p>
+Tags: <ul><li>welcome</li><li>wall-of-text</li></ul>`
 		if actual != expected {
 			t.Errorf("got %q want %q", actual, expected)
 		}
