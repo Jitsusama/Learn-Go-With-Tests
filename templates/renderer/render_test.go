@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"jitsusama/lgwt/templates/renderer"
 	"testing"
+
+	approvals "github.com/approvals/go-approval-tests"
 )
 
 func TestRender(t *testing.T) {
@@ -18,13 +20,6 @@ func TestRender(t *testing.T) {
 		if err := renderer.Render(&buf, examplePost); err != nil {
 			t.Fatal(err)
 		}
-		actual := buf.String()
-
-		expected := `<h1>Hello World</h1>
-<p>This is an introduction to my blog!</p>
-Tags: <ul><li>welcome</li><li>wall-of-text</li></ul>`
-		if actual != expected {
-			t.Errorf("got %q want %q", actual, expected)
-		}
+		approvals.VerifyString(t, buf.String())
 	})
 }
