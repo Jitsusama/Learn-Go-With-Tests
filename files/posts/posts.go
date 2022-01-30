@@ -2,6 +2,7 @@ package posts
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
 	"io/fs"
 	"strings"
@@ -11,6 +12,7 @@ type Post struct {
 	Title       string
 	Description string
 	Tags        []string
+	Body        string
 }
 
 func NewPostsFromFs(filesystem fs.FS) ([]Post, error) {
@@ -58,9 +60,15 @@ func getPost(filesystem fs.FS, filename string) (Post, error) {
 		return strings.TrimPrefix(scanner.Text(), fmt.Sprintf("%s: ", name))
 	}
 
-	return Post{
-		Title:       getMeta("Title"),
-		Description: getMeta("Description"),
-		Tags:        strings.Split(getMeta("Tags"), ", "),
-	}, nil
+	title := getMeta("Title")
+	description := getMeta("Description")
+	tags := strings.Split(getMeta("Tags"), ", ")
+	scanner.Scan()
+	buf := bytes.Buffer{}
+	for scanner.Scan() {
+		fmt.Fprintln(&buf, scanner.Text())
+	}
+	body := strings.TrimSuffix(buf.String(), "\n")
+
+	return Post{Title: title, Description: description, Tags: tags, Body: body}, nil
 }
