@@ -11,7 +11,7 @@ import (
 
 func TestScoreRetrieval(t *testing.T) {
 	store := StubPlayerStore{map[string]int{"Pepper": 20, "Floyd": 10}, nil}
-	server := &server.PlayerServer{&store}
+	server := server.NewPlayerServer(&store)
 
 	t.Run("retrieve pepper's score", func(t *testing.T) {
 		request := getPlayer("Pepper")
@@ -43,7 +43,7 @@ func TestScoreRetrieval(t *testing.T) {
 
 func TestScoreStorage(t *testing.T) {
 	store := StubPlayerStore{map[string]int{}, nil}
-	server := &server.PlayerServer{Store: &store}
+	server := server.NewPlayerServer(&store)
 
 	t.Run("records scores", func(t *testing.T) {
 		player := "Pepper"
@@ -59,6 +59,20 @@ func TestScoreStorage(t *testing.T) {
 		if store.posts[0] != player {
 			t.Errorf("got %q want %q", store.posts[0], player)
 		}
+	})
+}
+
+func TestLeagueRetrieval(t *testing.T) {
+	store := StubPlayerStore{}
+	server := server.NewPlayerServer(&store)
+
+	t.Run("stupid test", func(t *testing.T) {
+		request := getLeague()
+		response := httptest.NewRecorder()
+
+		server.ServeHTTP(response, request)
+
+		assertStatus(t, response.Code, 200)
 	})
 }
 
@@ -82,6 +96,11 @@ func getPlayer(player string) *http.Request {
 
 func postPlayer(player string) *http.Request {
 	req, _ := http.NewRequest("POST", fmt.Sprintf("/players/%s", player), nil)
+	return req
+}
+
+func getLeague() *http.Request {
+	req, _ := http.NewRequest("GET", "/league", nil)
 	return req
 }
 

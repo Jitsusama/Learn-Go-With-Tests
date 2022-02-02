@@ -12,22 +12,34 @@ type PlayerStore interface {
 }
 
 type PlayerServer struct {
-	Store PlayerStore
+	store  PlayerStore
+	router *http.ServeMux
+}
+
+func NewPlayerServer(store PlayerStore) *PlayerServer {
+	p := &PlayerServer{store, http.NewServeMux()}
+	p.router.Handle("/league", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(200)
+	}))
+	p.router.Handle("/players/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		player := strings.TrimPrefix(r.URL.Path, "/players/")
+
+		switch r.Method {
+		case "POST":
+			p.scoreIncrease(w, player)
+		case "GET":
+			p.scoreRetrieval(w, player)
+		}
+	}))
+	return p
 }
 
 func (p *PlayerServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	player := strings.TrimPrefix(r.URL.Path, "/players/")
-
-	switch r.Method {
-	case "POST":
-		p.scoreIncrease(w, player)
-	case "GET":
-		p.scoreRetrieval(w, player)
-	}
+	p.router.ServeHTTP(w, r)
 }
 
 func (p *PlayerServer) scoreRetrieval(w http.ResponseWriter, player string) {
-	score := p.Store.GetScore(player)
+	score := p.store.GetScore(player)
 
 	if score == 0 {
 		w.WriteHeader(404)
@@ -37,6 +49,6 @@ func (p *PlayerServer) scoreRetrieval(w http.ResponseWriter, player string) {
 }
 
 func (p *PlayerServer) scoreIncrease(w http.ResponseWriter, player string) {
-	p.Store.IncrementScore(player)
+	p.store.IncrementScore(player)
 	w.WriteHeader(202)
 }
