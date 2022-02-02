@@ -13,8 +13,8 @@ func TestRecordsTotalWinsAndAllowsTotalRetrieval(t *testing.T) {
 	player := "Pepper"
 	response := httptest.NewRecorder()
 
-	store := server.PlayerStoreInMemory{}
-	server := server.NewPlayerServer(&store)
+	store := server.NewPlayerStoreInMemory()
+	server := server.NewPlayerServer(store)
 
 	server.ServeHTTP(httptest.NewRecorder(), postPlayer(player))
 	server.ServeHTTP(httptest.NewRecorder(), postPlayer(player))

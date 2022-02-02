@@ -1,5 +1,9 @@
 package server
 
+func NewPlayerStoreInMemory() *PlayerStoreInMemory {
+	return &PlayerStoreInMemory{map[string]int{}}
+}
+
 type PlayerStoreInMemory struct {
 	store map[string]int
 }
