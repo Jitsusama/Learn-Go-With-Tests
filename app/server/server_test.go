@@ -14,7 +14,7 @@ func TestScoreRetrieval(t *testing.T) {
 	server := &server.PlayerServer{&store}
 
 	t.Run("retrieve pepper's score", func(t *testing.T) {
-		request := getScoreRequest("Pepper")
+		request := getPlayer("Pepper")
 		response := httptest.NewRecorder()
 
 		server.ServeHTTP(response, request)
@@ -23,7 +23,7 @@ func TestScoreRetrieval(t *testing.T) {
 		assertBody(t, response.Body, "20")
 	})
 	t.Run("retrieve floyd's score", func(t *testing.T) {
-		request := getScoreRequest("Floyd")
+		request := getPlayer("Floyd")
 		response := httptest.NewRecorder()
 
 		server.ServeHTTP(response, request)
@@ -32,7 +32,7 @@ func TestScoreRetrieval(t *testing.T) {
 		assertBody(t, response.Body, "10")
 	})
 	t.Run("complains on missing players", func(t *testing.T) {
-		request := getScoreRequest("Apollo")
+		request := getPlayer("Apollo")
 		response := httptest.NewRecorder()
 
 		server.ServeHTTP(response, request)
@@ -47,7 +47,7 @@ func TestScoreStorage(t *testing.T) {
 
 	t.Run("records scores", func(t *testing.T) {
 		player := "Pepper"
-		request := postScoreRequest(player)
+		request := postPlayer(player)
 		response := httptest.NewRecorder()
 
 		server.ServeHTTP(response, request)
@@ -71,16 +71,16 @@ func (s *StubPlayerStore) GetScore(name string) int {
 	return s.scores[name]
 }
 
-func (s *StubPlayerStore) PostScore(name string) {
+func (s *StubPlayerStore) IncrementScore(name string) {
 	s.posts = append(s.posts, name)
 }
 
-func getScoreRequest(player string) *http.Request {
+func getPlayer(player string) *http.Request {
 	req, _ := http.NewRequest("GET", fmt.Sprintf("/players/%s", player), nil)
 	return req
 }
 
-func postScoreRequest(player string) *http.Request {
+func postPlayer(player string) *http.Request {
 	req, _ := http.NewRequest("POST", fmt.Sprintf("/players/%s", player), nil)
 	return req
 }
