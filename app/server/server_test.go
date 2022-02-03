@@ -2,15 +2,17 @@ package server_test
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"jitsusama/lgwt/app/server"
 	"net/http"
 	"net/http/httptest"
+	"reflect"
 	"testing"
 )
 
 func TestScoreRetrieval(t *testing.T) {
-	store := StubPlayerStore{map[string]int{"Pepper": 20, "Floyd": 10}, nil}
+	store := StubPlayerStore{map[string]int{"Pepper": 20, "Floyd": 10}, nil, nil}
 	server := server.NewPlayerServer(&store)
 
 	t.Run("retrieve pepper's score", func(t *testing.T) {
@@ -20,7 +22,7 @@ func TestScoreRetrieval(t *testing.T) {
 		server.ServeHTTP(response, request)
 
 		assertStatus(t, response.Code, 200)
-		assertBody(t, response.Body, "20")
+		assertPlayerBody(t, response.Body, "20")
 	})
 	t.Run("retrieve floyd's score", func(t *testing.T) {
 		request := getPlayer("Floyd")
@@ -29,7 +31,7 @@ func TestScoreRetrieval(t *testing.T) {
 		server.ServeHTTP(response, request)
 
 		assertStatus(t, response.Code, 200)
-		assertBody(t, response.Body, "10")
+		assertPlayerBody(t, response.Body, "10")
 	})
 	t.Run("complains on missing players", func(t *testing.T) {
 		request := getPlayer("Apollo")
@@ -42,7 +44,7 @@ func TestScoreRetrieval(t *testing.T) {
 }
 
 func TestScoreStorage(t *testing.T) {
-	store := StubPlayerStore{map[string]int{}, nil}
+	store := StubPlayerStore{map[string]int{}, nil, nil}
 	server := server.NewPlayerServer(&store)
 
 	t.Run("records scores", func(t *testing.T) {
@@ -53,32 +55,37 @@ func TestScoreStorage(t *testing.T) {
 		server.ServeHTTP(response, request)
 
 		assertStatus(t, response.Code, 202)
-		if len(store.posts) != 1 {
-			t.Errorf("got %d want %d", len(store.posts), 1)
+		if len(store.wins) != 1 {
+			t.Errorf("got %d want %d", len(store.wins), 1)
 		}
-		if store.posts[0] != player {
-			t.Errorf("got %q want %q", store.posts[0], player)
+		if store.wins[0] != player {
+			t.Errorf("got %q want %q", store.wins[0], player)
 		}
 	})
 }
 
 func TestLeagueRetrieval(t *testing.T) {
-	store := StubPlayerStore{}
-	server := server.NewPlayerServer(&store)
+	t.Run("retrieves scores of entire league", func(t *testing.T) {
+		expected := []server.Player{
+			{"Cleo", 32}, {"Chris", 20}, {"Tiest", 14},
+		}
+		store := StubPlayerStore{nil, nil, expected}
+		server := server.NewPlayerServer(&store)
 
-	t.Run("stupid test", func(t *testing.T) {
 		request := getLeague()
 		response := httptest.NewRecorder()
-
 		server.ServeHTTP(response, request)
 
 		assertStatus(t, response.Code, 200)
+		assertContentType(t, response.Result().Header, "application/json")
+		assertLeagueBody(t, response.Body, expected)
 	})
 }
 
 type StubPlayerStore struct {
 	scores map[string]int
-	posts  []string
+	wins   []string
+	league []server.Player
 }
 
 func (s *StubPlayerStore) GetScore(name string) int {
@@ -86,7 +93,11 @@ func (s *StubPlayerStore) GetScore(name string) int {
 }
 
 func (s *StubPlayerStore) IncrementScore(name string) {
-	s.posts = append(s.posts, name)
+	s.wins = append(s.wins, name)
+}
+
+func (s *StubPlayerStore) GetLeague() []server.Player {
+	return s.league
 }
 
 func getPlayer(player string) *http.Request {
@@ -104,7 +115,22 @@ func getLeague() *http.Request {
 	return req
 }
 
-func assertBody(t testing.TB, body *bytes.Buffer, expected string) {
+func assertStatus(t testing.TB, actual int, expected int) {
+	t.Helper()
+	if actual != expected {
+		t.Errorf("got %d want %d", actual, expected)
+	}
+}
+
+func assertContentType(t testing.TB, headers http.Header, expected string) {
+	t.Helper()
+	actual := headers.Get("content-type")
+	if actual != expected {
+		t.Errorf("got %v want %v", actual, expected)
+	}
+}
+
+func assertPlayerBody(t testing.TB, body *bytes.Buffer, expected string) {
 	t.Helper()
 	actual := body.String()
 	if actual != expected {
@@ -112,9 +138,13 @@ func assertBody(t testing.TB, body *bytes.Buffer, expected string) {
 	}
 }
 
-func assertStatus(t testing.TB, actual int, expected int) {
+func assertLeagueBody(t testing.TB, body *bytes.Buffer, expected []server.Player) {
 	t.Helper()
-	if actual != expected {
-		t.Errorf("got %d want %d", actual, expected)
+	var actual []server.Player
+	if err := json.NewDecoder(body).Decode(&actual); err != nil {
+		t.Fatalf("unable to parse %q: '%v'", body, err)
+	}
+	if !reflect.DeepEqual(actual, expected) {
+		t.Errorf("got %v want %v", actual, expected)
 	}
 }

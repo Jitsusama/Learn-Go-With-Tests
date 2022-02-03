@@ -15,3 +15,7 @@ func (s *PlayerStoreInMemory) GetScore(name string) int {
 func (s *PlayerStoreInMemory) IncrementScore(name string) {
 	s.store[name]++
 }
+
+func (s *PlayerStoreInMemory) GetLeague() []Player {
+	return nil
+}
