@@ -1,38 +1,42 @@
 package storage
 
 import (
+	"io"
+	"io/ioutil"
+	"os"
 	"reflect"
-	"strings"
 	"testing"
 )
 
 func TestFileStorage(t *testing.T) {
 	t.Run("reads league data from JSON file", func(t *testing.T) {
-		fileContents := strings.NewReader(`[
+		file, cleanup := createFile(t, `[
 			{"Name": "Cleo", "Wins": 10},
 			{"Name": "Chris", "Wins": 33}
 		]`)
-		fileStore := FilePlayerStore{fileContents}
+		defer cleanup()
+		store := FilePlayerStore{file}
 
 		// read once
-		actual := fileStore.GetLeague()
+		actual := store.GetLeague()
 		expected := []Player{{"Cleo", 10}, {"Chris", 33}}
 		assertLeague(t, actual, expected)
 
 		// read once more
-		actual = fileStore.GetLeague()
+		actual = store.GetLeague()
 		expected = []Player{{"Cleo", 10}, {"Chris", 33}}
 		assertLeague(t, actual, expected)
 	})
 
 	t.Run("reads player score from JSON file", func(t *testing.T) {
-		fileContents := strings.NewReader(`[
+		file, cleanup := createFile(t, `[
 			{"Name": "Cleo", "Wins": 10},
 			{"Name": "Chris", "Wins": 33}
 		]`)
-		fileStore := FilePlayerStore{fileContents}
+		defer cleanup()
+		store := FilePlayerStore{file}
 
-		actual := fileStore.GetPlayerScore("Chris")
+		actual := store.GetPlayerScore("Chris")
 		expected := 33
 		assertScore(t, actual, expected)
 	})
@@ -49,5 +53,20 @@ func assertScore(t testing.TB, actual int, expected int) {
 	t.Helper()
 	if actual != expected {
 		t.Errorf("got %v want %v", actual, expected)
+	}
+}
+
+func createFile(t testing.TB, contents string) (io.ReadWriteSeeker, func()) {
+	t.Helper()
+
+	tmpFile, err := ioutil.TempFile("", "*.json")
+	if err != nil {
+		t.Fatalf("temp file creation error: %v", err)
+	}
+	tmpFile.Write([]byte(contents))
+
+	return tmpFile, func() {
+		tmpFile.Close()
+		os.Remove(tmpFile.Name())
 	}
 }
