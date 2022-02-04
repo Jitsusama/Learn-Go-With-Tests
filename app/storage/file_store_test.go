@@ -14,8 +14,14 @@ func TestFileStorage(t *testing.T) {
 		]`)
 		fileStore := FilePlayerStore{fileContents}
 
+		// read once
 		actual := fileStore.GetLeague()
 		expected := []Player{{"Cleo", 10}, {"Chris", 33}}
+		assertLeagueBody(t, actual, expected)
+
+		// read once more
+		actual = fileStore.GetLeague()
+		expected = []Player{{"Cleo", 10}, {"Chris", 33}}
 		assertLeagueBody(t, actual, expected)
 	})
 }
