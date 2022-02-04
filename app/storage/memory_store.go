@@ -1,4 +1,4 @@
-package server
+package storage
 
 func NewPlayerStoreInMemory() *PlayerStoreInMemory {
 	return &PlayerStoreInMemory{map[string]int{}}
@@ -19,7 +19,9 @@ func (s *PlayerStoreInMemory) IncrementScore(name string) {
 func (s *PlayerStoreInMemory) GetLeague() []Player {
 	var league []Player
 	for name, wins := range s.store {
-		league = append(league, Player{name, wins})
+		league = append(league, Player{
+			Name: name, Wins: wins,
+		})
 	}
 	return league
 }

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"jitsusama/lgwt/app/server"
+	"jitsusama/lgwt/app/storage"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -14,7 +15,7 @@ import (
 func TestRecordsTotalWinsAndAllowsTotalRetrieval(t *testing.T) {
 	player := "Pepper"
 
-	str := server.NewPlayerStoreInMemory()
+	str := storage.NewPlayerStoreInMemory()
 	svr := server.NewPlayerServer(str)
 
 	svr.ServeHTTP(httptest.NewRecorder(), postPlayer(player))
@@ -34,7 +35,7 @@ func TestRecordsTotalWinsAndAllowsTotalRetrieval(t *testing.T) {
 		svr.ServeHTTP(response, getLeague())
 
 		assertStatus(t, response.Code, 200)
-		assertLeagueBody(t, response.Body, []server.Player{
+		assertLeagueBody(t, response.Body, []storage.Player{
 			{Name: "Pepper", Wins: 3},
 		})
 	})
@@ -70,9 +71,9 @@ func assertPlayerBody(t testing.TB, body *bytes.Buffer, expected string) {
 	}
 }
 
-func assertLeagueBody(t testing.TB, body *bytes.Buffer, expected []server.Player) {
+func assertLeagueBody(t testing.TB, body *bytes.Buffer, expected []storage.Player) {
 	t.Helper()
-	var actual []server.Player
+	var actual []storage.Player
 	if err := json.NewDecoder(body).Decode(&actual); err != nil {
 		t.Fatalf("unable to parse %q: '%v'", body, err)
 	}

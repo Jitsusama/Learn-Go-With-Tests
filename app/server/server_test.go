@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"jitsusama/lgwt/app/server"
+	"jitsusama/lgwt/app/storage"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -66,8 +67,9 @@ func TestScoreStorage(t *testing.T) {
 
 func TestLeagueRetrieval(t *testing.T) {
 	t.Run("retrieves scores of entire league", func(t *testing.T) {
-		expected := []server.Player{
-			{"Cleo", 32}, {"Chris", 20}, {"Tiest", 14},
+		expected := []storage.Player{
+			{Name: "Cleo", Wins: 32}, {Name: "Chris", Wins: 20},
+			{Name: "Test", Wins: 14},
 		}
 		store := StubPlayerStore{nil, nil, expected}
 		server := server.NewPlayerServer(&store)
@@ -85,7 +87,7 @@ func TestLeagueRetrieval(t *testing.T) {
 type StubPlayerStore struct {
 	scores map[string]int
 	wins   []string
-	league []server.Player
+	league []storage.Player
 }
 
 func (s *StubPlayerStore) GetScore(name string) int {
@@ -96,7 +98,7 @@ func (s *StubPlayerStore) IncrementScore(name string) {
 	s.wins = append(s.wins, name)
 }
 
-func (s *StubPlayerStore) GetLeague() []server.Player {
+func (s *StubPlayerStore) GetLeague() []storage.Player {
 	return s.league
 }
 
@@ -138,9 +140,9 @@ func assertPlayerBody(t testing.TB, body *bytes.Buffer, expected string) {
 	}
 }
 
-func assertLeagueBody(t testing.TB, body *bytes.Buffer, expected []server.Player) {
+func assertLeagueBody(t testing.TB, body *bytes.Buffer, expected []storage.Player) {
 	t.Helper()
-	var actual []server.Player
+	var actual []storage.Player
 	if err := json.NewDecoder(body).Decode(&actual); err != nil {
 		t.Fatalf("unable to parse %q: '%v'", body, err)
 	}

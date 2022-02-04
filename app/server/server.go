@@ -3,27 +3,17 @@ package server
 import (
 	"encoding/json"
 	"fmt"
+	"jitsusama/lgwt/app/storage"
 	"net/http"
 	"strings"
 )
 
-type PlayerStore interface {
-	GetScore(name string) int
-	IncrementScore(name string)
-	GetLeague() []Player
-}
-
-type Player struct {
-	Name string
-	Wins int
-}
-
 type PlayerServer struct {
-	store  PlayerStore
+	store  storage.PlayerStore
 	router *http.ServeMux
 }
 
-func NewPlayerServer(store PlayerStore) *PlayerServer {
+func NewPlayerServer(store storage.PlayerStore) *PlayerServer {
 	p := &PlayerServer{store, http.NewServeMux()}
 	p.router.Handle("/league", http.HandlerFunc(p.leagueHandler))
 	p.router.Handle("/players/", http.HandlerFunc(p.playerHandler))
