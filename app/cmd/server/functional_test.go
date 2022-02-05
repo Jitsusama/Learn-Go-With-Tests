@@ -4,10 +4,13 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"jitsusama/lgwt/app/server"
 	"jitsusama/lgwt/app/storage"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"reflect"
 	"testing"
 )
@@ -15,7 +18,9 @@ import (
 func TestRecordsTotalWinsAndAllowsTotalRetrieval(t *testing.T) {
 	player := "Pepper"
 
-	str := storage.NewPlayerStoreInMemory()
+	file, cleanup := createFile(t, "")
+	defer cleanup()
+	str := storage.NewFilePlayerStore(file)
 	svr := server.NewPlayerServer(str)
 
 	svr.ServeHTTP(httptest.NewRecorder(), postPlayer(player))
@@ -79,5 +84,20 @@ func assertLeagueBody(t testing.TB, body *bytes.Buffer, expected []storage.Playe
 	}
 	if !reflect.DeepEqual(actual, expected) {
 		t.Errorf("got %v want %v", actual, expected)
+	}
+}
+
+func createFile(t testing.TB, contents string) (io.ReadWriteSeeker, func()) {
+	t.Helper()
+
+	tmpFile, err := ioutil.TempFile("", "*.json")
+	if err != nil {
+		t.Fatalf("temp file creation error: %v", err)
+	}
+	tmpFile.Write([]byte(contents))
+
+	return tmpFile, func() {
+		tmpFile.Close()
+		os.Remove(tmpFile.Name())
 	}
 }

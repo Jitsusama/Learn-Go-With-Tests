@@ -6,22 +6,15 @@ import (
 	"io"
 )
 
+func NewFilePlayerStore(database io.ReadWriteSeeker) *FilePlayerStore {
+	return &FilePlayerStore{database}
+}
+
 type FilePlayerStore struct {
 	database io.ReadWriteSeeker
 }
 
-func (f *FilePlayerStore) GetLeague() League {
-	// reset position to beginning of file
-	f.database.Seek(0, 0)
-
-	var league League
-	if err := json.NewDecoder(f.database).Decode(&league); err != nil {
-		fmt.Printf("json parsing error: %v", err)
-	}
-	return league
-}
-
-func (f *FilePlayerStore) GetPlayerScore(name string) int {
+func (f *FilePlayerStore) GetScore(name string) int {
 	player := f.GetLeague().Find(name)
 	if player != nil {
 		return player.Wins
@@ -40,4 +33,15 @@ func (f *FilePlayerStore) IncrementScore(name string) {
 	// reset position to beginning of file
 	f.database.Seek(0, 0)
 	json.NewEncoder(f.database).Encode(league)
+}
+
+func (f *FilePlayerStore) GetLeague() League {
+	// reset position to beginning of file
+	f.database.Seek(0, 0)
+
+	var league League
+	if err := json.NewDecoder(f.database).Decode(&league); err != nil {
+		fmt.Printf("json parsing error: %v", err)
+	}
+	return league
 }

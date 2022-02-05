@@ -15,7 +15,7 @@ func TestFileStorage(t *testing.T) {
 			{"Name": "Chris", "Wins": 33}
 		]`)
 		defer cleanup()
-		store := FilePlayerStore{file}
+		store := NewFilePlayerStore(file)
 
 		// read once
 		actual := store.GetLeague()
@@ -34,9 +34,9 @@ func TestFileStorage(t *testing.T) {
 			{"Name": "Chris", "Wins": 33}
 		]`)
 		defer cleanup()
-		store := FilePlayerStore{file}
+		store := NewFilePlayerStore(file)
 
-		actual := store.GetPlayerScore("Chris")
+		actual := store.GetScore("Chris")
 		expected := 33
 		assertScore(t, actual, expected)
 	})
@@ -47,11 +47,11 @@ func TestFileStorage(t *testing.T) {
 			{"Name": "Chris", "Wins": 33}
 		]`)
 		defer cleanup()
-		store := FilePlayerStore{file}
+		store := NewFilePlayerStore(file)
 
 		store.IncrementScore("Chris")
 
-		actual := store.GetPlayerScore("Chris")
+		actual := store.GetScore("Chris")
 		expected := 34
 		assertScore(t, actual, expected)
 	})
@@ -62,11 +62,11 @@ func TestFileStorage(t *testing.T) {
 			{"Name": "Chris", "Wins": 33}
 		]`)
 		defer cleanup()
-		store := FilePlayerStore{file}
+		store := NewFilePlayerStore(file)
 
 		store.IncrementScore("Pepper")
 
-		actual := store.GetPlayerScore("Pepper")
+		actual := store.GetScore("Pepper")
 		expected := 1
 		assertScore(t, actual, expected)
 	})

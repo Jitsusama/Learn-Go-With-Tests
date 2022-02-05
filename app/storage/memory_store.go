@@ -1,22 +1,22 @@
 package storage
 
-func NewPlayerStoreInMemory() *PlayerStoreInMemory {
-	return &PlayerStoreInMemory{map[string]int{}}
+func NewMemoryPlayerStore() *MemoryPlayerStore {
+	return &MemoryPlayerStore{map[string]int{}}
 }
 
-type PlayerStoreInMemory struct {
+type MemoryPlayerStore struct {
 	store map[string]int
 }
 
-func (s *PlayerStoreInMemory) GetScore(name string) int {
+func (s *MemoryPlayerStore) GetScore(name string) int {
 	return s.store[name]
 }
 
-func (s *PlayerStoreInMemory) IncrementScore(name string) {
+func (s *MemoryPlayerStore) IncrementScore(name string) {
 	s.store[name]++
 }
 
-func (s *PlayerStoreInMemory) GetLeague() League {
+func (s *MemoryPlayerStore) GetLeague() League {
 	var league League
 	for name, wins := range s.store {
 		league = append(league, Player{

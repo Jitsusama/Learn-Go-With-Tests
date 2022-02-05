@@ -5,10 +5,18 @@ import (
 	"jitsusama/lgwt/app/storage"
 	"log"
 	"net/http"
+	"os"
 )
 
 func main() {
-	store := storage.PlayerStoreInMemory{}
-	server := server.NewPlayerServer(&store)
-	log.Fatal(http.ListenAndServe(":5000", server))
+	file, err := os.OpenFile("game.db.json", os.O_RDWR|os.O_CREATE, 0666)
+	if err != nil {
+		log.Fatalf("problem opening %q: %v", "game.db.json", err)
+	}
+	store := storage.NewFilePlayerStore(file)
+	server := server.NewPlayerServer(store)
+
+	if err := http.ListenAndServe(":5000", server); err != nil {
+		log.Fatalf("could not listen on port 5000: %v", err)
+	}
 }
