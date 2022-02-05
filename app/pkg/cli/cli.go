@@ -8,10 +8,6 @@ import (
 	"time"
 )
 
-type BlindAlerter interface {
-	ScheduleAlertAt(duration time.Duration, amount int)
-}
-
 func NewCli(store storage.PlayerStore, stdin io.Reader, alerter BlindAlerter) *Cli {
 	return &Cli{store, bufio.NewScanner(stdin), alerter}
 }
