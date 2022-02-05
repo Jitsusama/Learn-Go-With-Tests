@@ -1,8 +1,9 @@
-package storage
+package storage_test
 
 import (
 	"io"
 	"io/ioutil"
+	"jitsusama/lgwt/app/storage"
 	"os"
 	"reflect"
 	"testing"
@@ -15,16 +16,16 @@ func TestFileStorage(t *testing.T) {
 			{"Name": "Chris", "Wins": 33}
 		]`)
 		defer cleanup()
-		store := NewFilePlayerStore(file)
+		store := storage.NewFilePlayerStore(file)
 
 		// read once
 		actual := store.GetLeague()
-		expected := League{{"Cleo", 10}, {"Chris", 33}}
+		expected := storage.League{{"Cleo", 10}, {"Chris", 33}}
 		assertLeague(t, actual, expected)
 
 		// read once more
 		actual = store.GetLeague()
-		expected = League{{"Cleo", 10}, {"Chris", 33}}
+		expected = storage.League{{"Cleo", 10}, {"Chris", 33}}
 		assertLeague(t, actual, expected)
 	})
 
@@ -34,7 +35,7 @@ func TestFileStorage(t *testing.T) {
 			{"Name": "Chris", "Wins": 33}
 		]`)
 		defer cleanup()
-		store := NewFilePlayerStore(file)
+		store := storage.NewFilePlayerStore(file)
 
 		actual := store.GetScore("Chris")
 		expected := 33
@@ -47,7 +48,7 @@ func TestFileStorage(t *testing.T) {
 			{"Name": "Chris", "Wins": 33}
 		]`)
 		defer cleanup()
-		store := NewFilePlayerStore(file)
+		store := storage.NewFilePlayerStore(file)
 
 		store.IncrementScore("Chris")
 
@@ -62,7 +63,7 @@ func TestFileStorage(t *testing.T) {
 			{"Name": "Chris", "Wins": 33}
 		]`)
 		defer cleanup()
-		store := NewFilePlayerStore(file)
+		store := storage.NewFilePlayerStore(file)
 
 		store.IncrementScore("Pepper")
 
@@ -72,7 +73,7 @@ func TestFileStorage(t *testing.T) {
 	})
 }
 
-func assertLeague(t testing.TB, actual League, expected League) {
+func assertLeague(t testing.TB, actual storage.League, expected storage.League) {
 	t.Helper()
 	if !reflect.DeepEqual(actual, expected) {
 		t.Errorf("got %v want %v", actual, expected)
