@@ -1,6 +1,7 @@
 package cli_test
 
 import (
+	"bytes"
 	"fmt"
 	"jitsusama/lgwt/app/pkg/cli"
 	test "jitsusama/lgwt/app/pkg/testing"
@@ -10,13 +11,14 @@ import (
 )
 
 var dummyAlerter = &spiedBlindAlerter{}
+var dummyStdout = &bytes.Buffer{}
 
 func TestCli(t *testing.T) {
 	t.Run("records chris winning", func(t *testing.T) {
 		stdin := strings.NewReader("Chris wins\n")
 		store := test.StubbedPlayerStore{}
 
-		cli := cli.NewCli(&store, stdin, dummyAlerter)
+		cli := cli.NewCli(&store, stdin, dummyStdout, dummyAlerter)
 		cli.PlayPoker()
 
 		test.AssertPlayerWin(t, &store, "Chris")
@@ -25,7 +27,7 @@ func TestCli(t *testing.T) {
 		stdin := strings.NewReader("Cleo wins\n")
 		store := test.StubbedPlayerStore{}
 
-		cli := cli.NewCli(&store, stdin, dummyAlerter)
+		cli := cli.NewCli(&store, stdin, dummyStdout, dummyAlerter)
 		cli.PlayPoker()
 
 		test.AssertPlayerWin(t, &store, "Cleo")
@@ -35,7 +37,7 @@ func TestCli(t *testing.T) {
 		store := test.StubbedPlayerStore{}
 		alerter := &spiedBlindAlerter{}
 
-		cli := cli.NewCli(&store, stdin, alerter)
+		cli := cli.NewCli(&store, stdin, dummyStdout, alerter)
 		cli.PlayPoker()
 
 		cases := []scheduledAlert{
@@ -58,6 +60,21 @@ func TestCli(t *testing.T) {
 				}
 				assertScheduledAlert(t, alerter.alerts[i], expected)
 			})
+		}
+	})
+	t.Run("requests number of players from user", func(t *testing.T) {
+		stdout := &bytes.Buffer{}
+		stdin := &bytes.Buffer{}
+		alerter := &spiedBlindAlerter{}
+		store := &test.StubbedPlayerStore{}
+
+		cli := cli.NewCli(store, stdin, stdout, alerter)
+		cli.PlayPoker()
+
+		actual := stdout.String()
+		expected := "Please enter the number of players: "
+		if actual != expected {
+			t.Errorf("got %q want %q", actual, expected)
 		}
 	})
 }

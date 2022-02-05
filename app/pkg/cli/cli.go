@@ -2,23 +2,26 @@ package cli
 
 import (
 	"bufio"
+	"fmt"
 	"io"
 	"jitsusama/lgwt/app/pkg/storage"
 	"strings"
 	"time"
 )
 
-func NewCli(store storage.PlayerStore, stdin io.Reader, alerter BlindAlerter) *Cli {
-	return &Cli{store, bufio.NewScanner(stdin), alerter}
+func NewCli(store storage.PlayerStore, stdin io.Reader, stdout io.Writer, alerter BlindAlerter) *Cli {
+	return &Cli{store, bufio.NewScanner(stdin), stdout, alerter}
 }
 
 type Cli struct {
-	store storage.PlayerStore
-	stdin *bufio.Scanner
-	alert BlindAlerter
+	store  storage.PlayerStore
+	stdin  *bufio.Scanner
+	stdout io.Writer
+	alert  BlindAlerter
 }
 
 func (c *Cli) PlayPoker() {
+	fmt.Fprint(c.stdout, "Please enter the number of players: ")
 	c.scheduleBlindAlerts()
 	c.waitForWin()
 }
