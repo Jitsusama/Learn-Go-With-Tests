@@ -7,11 +7,13 @@ import (
 )
 
 func NewFilePlayerStore(database *os.File) (*FilePlayerStore, error) {
-	database.Seek(0, 0)
-
-	var league League
-	if err := json.NewDecoder(database).Decode(&league); err != nil {
-		return nil, fmt.Errorf("json parsing error while reading %q: %v", database.Name(), err)
+	err := sanitizeDatabase(database)
+	if err != nil {
+		return nil, err
+	}
+	league, err := decodeDatabase(database)
+	if err != nil {
+		return nil, err
 	}
 	return &FilePlayerStore{
 		json.NewEncoder(&tape{database}),
@@ -44,4 +46,26 @@ func (f *FilePlayerStore) IncrementScore(name string) {
 
 func (f *FilePlayerStore) GetLeague() League {
 	return f.league
+}
+
+func sanitizeDatabase(database *os.File) error {
+	database.Seek(0, 0)
+	stat, err := database.Stat()
+	if err != nil {
+		return fmt.Errorf("problem reading file %q: %v", database.Name(), err)
+	}
+	// make empty file into valid empty league JSON
+	if stat.Size() == 0 {
+		database.Write([]byte("[]"))
+		database.Seek(0, 0)
+	}
+	return nil
+}
+
+func decodeDatabase(database *os.File) (League, error) {
+	var league League
+	if err := json.NewDecoder(database).Decode(&league); err != nil {
+		return nil, fmt.Errorf("json parsing error while reading %q: %v", database.Name(), err)
+	}
+	return league, nil
 }
