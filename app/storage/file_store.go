@@ -34,6 +34,8 @@ func (f *FilePlayerStore) IncrementScore(name string) {
 	player := league.Find(name)
 	if player != nil {
 		player.Wins++
+	} else {
+		league = append(league, Player{name, 1})
 	}
 	// reset position to beginning of file
 	f.database.Seek(0, 0)

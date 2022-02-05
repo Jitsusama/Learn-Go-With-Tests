@@ -55,6 +55,21 @@ func TestFileStorage(t *testing.T) {
 		expected := 34
 		assertScore(t, actual, expected)
 	})
+
+	t.Run("stores score for new player", func(t *testing.T) {
+		file, cleanup := createFile(t, `[
+			{"Name": "Cleo", "Wins": 10},
+			{"Name": "Chris", "Wins": 33}
+		]`)
+		defer cleanup()
+		store := FilePlayerStore{file}
+
+		store.IncrementScore("Pepper")
+
+		actual := store.GetPlayerScore("Pepper")
+		expected := 1
+		assertScore(t, actual, expected)
+	})
 }
 
 func assertLeague(t testing.TB, actual League, expected League) {
