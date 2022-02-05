@@ -1,8 +1,8 @@
 package main
 
 import (
-	"jitsusama/lgwt/app/server"
-	"jitsusama/lgwt/app/storage"
+	"jitsusama/lgwt/app/api/server"
+	"jitsusama/lgwt/app/api/storage"
 	"log"
 	"net/http"
 	"os"

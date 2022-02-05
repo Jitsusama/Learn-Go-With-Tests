@@ -3,7 +3,7 @@ package server
 import (
 	"encoding/json"
 	"fmt"
-	"jitsusama/lgwt/app/storage"
+	"jitsusama/lgwt/app/api/storage"
 	"net/http"
 	"strings"
 )

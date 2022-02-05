@@ -2,7 +2,7 @@ package storage_test
 
 import (
 	"io/ioutil"
-	"jitsusama/lgwt/app/storage"
+	"jitsusama/lgwt/app/api/storage"
 	"os"
 	"reflect"
 	"testing"
