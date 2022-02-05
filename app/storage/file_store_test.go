@@ -19,12 +19,12 @@ func TestFileStorage(t *testing.T) {
 
 		// read once
 		actual := store.GetLeague()
-		expected := []Player{{"Cleo", 10}, {"Chris", 33}}
+		expected := League{{"Cleo", 10}, {"Chris", 33}}
 		assertLeague(t, actual, expected)
 
 		// read once more
 		actual = store.GetLeague()
-		expected = []Player{{"Cleo", 10}, {"Chris", 33}}
+		expected = League{{"Cleo", 10}, {"Chris", 33}}
 		assertLeague(t, actual, expected)
 	})
 
@@ -40,9 +40,24 @@ func TestFileStorage(t *testing.T) {
 		expected := 33
 		assertScore(t, actual, expected)
 	})
+
+	t.Run("increments score for existing player", func(t *testing.T) {
+		file, cleanup := createFile(t, `[
+			{"Name": "Cleo", "Wins": 10},
+			{"Name": "Chris", "Wins": 33}
+		]`)
+		defer cleanup()
+		store := FilePlayerStore{file}
+
+		store.IncrementScore("Chris")
+
+		actual := store.GetPlayerScore("Chris")
+		expected := 34
+		assertScore(t, actual, expected)
+	})
 }
 
-func assertLeague(t testing.TB, actual []Player, expected []Player) {
+func assertLeague(t testing.TB, actual League, expected League) {
 	t.Helper()
 	if !reflect.DeepEqual(actual, expected) {
 		t.Errorf("got %v want %v", actual, expected)

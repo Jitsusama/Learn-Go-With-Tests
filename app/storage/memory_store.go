@@ -16,8 +16,8 @@ func (s *PlayerStoreInMemory) IncrementScore(name string) {
 	s.store[name]++
 }
 
-func (s *PlayerStoreInMemory) GetLeague() []Player {
-	var league []Player
+func (s *PlayerStoreInMemory) GetLeague() League {
+	var league League
 	for name, wins := range s.store {
 		league = append(league, Player{
 			Name: name, Wins: wins,

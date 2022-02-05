@@ -87,7 +87,7 @@ func TestLeagueRetrieval(t *testing.T) {
 type StubPlayerStore struct {
 	scores map[string]int
 	wins   []string
-	league []storage.Player
+	league storage.League
 }
 
 func (s *StubPlayerStore) GetScore(name string) int {
@@ -98,7 +98,7 @@ func (s *StubPlayerStore) IncrementScore(name string) {
 	s.wins = append(s.wins, name)
 }
 
-func (s *StubPlayerStore) GetLeague() []storage.Player {
+func (s *StubPlayerStore) GetLeague() storage.League {
 	return s.league
 }
 
