@@ -14,11 +14,11 @@ func NewFilePlayerStore(database io.ReadWriteSeeker) *FilePlayerStore {
 		fmt.Printf("json parsing error: %v", err)
 	}
 
-	return &FilePlayerStore{database, league}
+	return &FilePlayerStore{&tape{database}, league}
 }
 
 type FilePlayerStore struct {
-	database io.ReadWriteSeeker
+	database io.Writer
 	league   League
 }
 
@@ -38,7 +38,6 @@ func (f *FilePlayerStore) IncrementScore(name string) {
 		f.league = append(f.league, Player{name, 1})
 	}
 	// reset position to beginning of file
-	f.database.Seek(0, 0)
 	json.NewEncoder(f.database).Encode(f.league)
 }
 
