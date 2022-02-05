@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"os"
 )
 
 func NewFilePlayerStore(database io.ReadWriteSeeker) *FilePlayerStore {
@@ -13,12 +14,17 @@ func NewFilePlayerStore(database io.ReadWriteSeeker) *FilePlayerStore {
 	if err := json.NewDecoder(database).Decode(&league); err != nil {
 		fmt.Printf("json parsing error: %v", err)
 	}
-
-	return &FilePlayerStore{&tape{database}, league}
+	if database, ok := database.(*os.File); ok {
+		return &FilePlayerStore{
+			json.NewEncoder(&tape{database}),
+			league,
+		}
+	}
+	return nil
 }
 
 type FilePlayerStore struct {
-	database io.Writer
+	database *json.Encoder
 	league   League
 }
 
@@ -37,8 +43,7 @@ func (f *FilePlayerStore) IncrementScore(name string) {
 	} else {
 		f.league = append(f.league, Player{name, 1})
 	}
-	// reset position to beginning of file
-	json.NewEncoder(f.database).Encode(f.league)
+	f.database.Encode(f.league)
 }
 
 func (f *FilePlayerStore) GetLeague() League {
