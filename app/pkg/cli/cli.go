@@ -8,12 +8,12 @@ import (
 )
 
 func NewCli(store storage.PlayerStore, stdin io.Reader) *Cli {
-	return &Cli{store, stdin}
+	return &Cli{store, bufio.NewScanner(stdin)}
 }
 
 type Cli struct {
 	store storage.PlayerStore
-	stdin io.Reader
+	stdin *bufio.Scanner
 }
 
 func (c *Cli) PlayPoker() {
@@ -23,9 +23,8 @@ func (c *Cli) PlayPoker() {
 }
 
 func (c *Cli) readLine() string {
-	scanner := bufio.NewScanner(c.stdin)
-	scanner.Scan()
-	return scanner.Text()
+	c.stdin.Scan()
+	return c.stdin.Text()
 }
 
 func parseLine(line string) string {
