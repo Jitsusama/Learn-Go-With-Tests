@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"jitsusama/lgwt/app/server"
 	"jitsusama/lgwt/app/storage"
@@ -18,9 +17,9 @@ import (
 func TestRecordsTotalWinsAndAllowsTotalRetrieval(t *testing.T) {
 	player := "Pepper"
 
-	file, cleanup := createFile(t, "")
+	file, cleanup := createFile(t, "[]")
 	defer cleanup()
-	str := storage.NewFilePlayerStore(file)
+	str, _ := storage.NewFilePlayerStore(file)
 	svr := server.NewPlayerServer(str)
 
 	svr.ServeHTTP(httptest.NewRecorder(), postPlayer(player))
@@ -87,7 +86,7 @@ func assertLeagueBody(t testing.TB, body *bytes.Buffer, expected []storage.Playe
 	}
 }
 
-func createFile(t testing.TB, contents string) (io.ReadWriteSeeker, func()) {
+func createFile(t testing.TB, contents string) (*os.File, func()) {
 	t.Helper()
 
 	tmpFile, err := ioutil.TempFile("", "*.json")

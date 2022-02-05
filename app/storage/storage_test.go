@@ -1,7 +1,6 @@
 package storage_test
 
 import (
-	"io"
 	"io/ioutil"
 	"jitsusama/lgwt/app/storage"
 	"os"
@@ -16,7 +15,7 @@ func TestFileStorage(t *testing.T) {
 			{"Name": "Chris", "Wins": 33}
 		]`)
 		defer cleanup()
-		store := storage.NewFilePlayerStore(file)
+		store, _ := storage.NewFilePlayerStore(file)
 
 		// read once
 		actual := store.GetLeague()
@@ -35,7 +34,7 @@ func TestFileStorage(t *testing.T) {
 			{"Name": "Chris", "Wins": 33}
 		]`)
 		defer cleanup()
-		store := storage.NewFilePlayerStore(file)
+		store, _ := storage.NewFilePlayerStore(file)
 
 		actual := store.GetScore("Chris")
 		expected := 33
@@ -48,7 +47,7 @@ func TestFileStorage(t *testing.T) {
 			{"Name": "Chris", "Wins": 33}
 		]`)
 		defer cleanup()
-		store := storage.NewFilePlayerStore(file)
+		store, _ := storage.NewFilePlayerStore(file)
 
 		store.IncrementScore("Chris")
 
@@ -63,7 +62,7 @@ func TestFileStorage(t *testing.T) {
 			{"Name": "Chris", "Wins": 33}
 		]`)
 		defer cleanup()
-		store := storage.NewFilePlayerStore(file)
+		store, _ := storage.NewFilePlayerStore(file)
 
 		store.IncrementScore("Pepper")
 
@@ -87,7 +86,7 @@ func assertScore(t testing.TB, actual int, expected int) {
 	}
 }
 
-func createFile(t testing.TB, contents string) (io.ReadWriteSeeker, func()) {
+func createFile(t testing.TB, contents string) (*os.File, func()) {
 	t.Helper()
 
 	tmpFile, err := ioutil.TempFile("", "*.json")

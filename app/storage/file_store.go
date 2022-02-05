@@ -3,24 +3,20 @@ package storage
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"os"
 )
 
-func NewFilePlayerStore(database io.ReadWriteSeeker) *FilePlayerStore {
+func NewFilePlayerStore(database *os.File) (*FilePlayerStore, error) {
 	database.Seek(0, 0)
 
 	var league League
 	if err := json.NewDecoder(database).Decode(&league); err != nil {
-		fmt.Printf("json parsing error: %v", err)
+		return nil, fmt.Errorf("json parsing error while reading %q: %v", database.Name(), err)
 	}
-	if database, ok := database.(*os.File); ok {
-		return &FilePlayerStore{
-			json.NewEncoder(&tape{database}),
-			league,
-		}
-	}
-	return nil
+	return &FilePlayerStore{
+		json.NewEncoder(&tape{database}),
+		league,
+	}, nil
 }
 
 type FilePlayerStore struct {
