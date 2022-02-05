@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"jitsusama/lgwt/app/pkg/server"
 	"jitsusama/lgwt/app/pkg/storage"
+	test "jitsusama/lgwt/app/pkg/testing"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -13,8 +14,8 @@ import (
 )
 
 func TestScoreRetrieval(t *testing.T) {
-	store := StubPlayerStore{map[string]int{"Pepper": 20, "Floyd": 10}, nil, nil}
-	server := server.NewPlayerServer(&store)
+	store := test.NewStubbedPlayerStore(map[string]int{"Pepper": 20, "Floyd": 10}, nil)
+	server := server.NewPlayerServer(store)
 
 	t.Run("retrieve pepper's score", func(t *testing.T) {
 		request := getPlayer("Pepper")
@@ -45,8 +46,8 @@ func TestScoreRetrieval(t *testing.T) {
 }
 
 func TestScoreStorage(t *testing.T) {
-	store := StubPlayerStore{map[string]int{}, nil, nil}
-	server := server.NewPlayerServer(&store)
+	store := &test.StubbedPlayerStore{}
+	server := server.NewPlayerServer(store)
 
 	t.Run("records scores", func(t *testing.T) {
 		player := "Pepper"
@@ -56,12 +57,7 @@ func TestScoreStorage(t *testing.T) {
 		server.ServeHTTP(response, request)
 
 		assertStatus(t, response.Code, 202)
-		if len(store.wins) != 1 {
-			t.Errorf("got %d want %d", len(store.wins), 1)
-		}
-		if store.wins[0] != player {
-			t.Errorf("got %q want %q", store.wins[0], player)
-		}
+		test.AssertPlayerWin(t, store, player)
 	})
 }
 
@@ -71,8 +67,8 @@ func TestLeagueRetrieval(t *testing.T) {
 			{Name: "Cleo", Wins: 32}, {Name: "Chris", Wins: 20},
 			{Name: "Test", Wins: 14},
 		}
-		store := StubPlayerStore{nil, nil, expected}
-		server := server.NewPlayerServer(&store)
+		store := test.NewStubbedPlayerStore(nil, expected)
+		server := server.NewPlayerServer(store)
 
 		request := getLeague()
 		response := httptest.NewRecorder()
@@ -82,24 +78,6 @@ func TestLeagueRetrieval(t *testing.T) {
 		assertContentType(t, response.Result().Header, "application/json")
 		assertLeagueBody(t, response.Body, expected)
 	})
-}
-
-type StubPlayerStore struct {
-	scores map[string]int
-	wins   []string
-	league storage.League
-}
-
-func (s *StubPlayerStore) GetScore(name string) int {
-	return s.scores[name]
-}
-
-func (s *StubPlayerStore) IncrementScore(name string) {
-	s.wins = append(s.wins, name)
-}
-
-func (s *StubPlayerStore) GetLeague() storage.League {
-	return s.league
 }
 
 func getPlayer(player string) *http.Request {
