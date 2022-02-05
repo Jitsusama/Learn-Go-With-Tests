@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"sort"
 )
 
 func NewFilePlayerStore(database *os.File) (*FilePlayerStore, error) {
@@ -45,6 +46,9 @@ func (f *FilePlayerStore) IncrementScore(name string) {
 }
 
 func (f *FilePlayerStore) GetLeague() League {
+	sort.Slice(f.league, func(i, j int) bool {
+		return f.league[i].Wins > f.league[j].Wins
+	})
 	return f.league
 }
 

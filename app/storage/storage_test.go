@@ -9,7 +9,7 @@ import (
 )
 
 func TestFileStorage(t *testing.T) {
-	t.Run("reads league data from JSON file", func(t *testing.T) {
+	t.Run("reads sorted league data from JSON file", func(t *testing.T) {
 		file, cleanup := createFile(t, `[
 			{"Name": "Cleo", "Wins": 10},
 			{"Name": "Chris", "Wins": 33}
@@ -19,12 +19,12 @@ func TestFileStorage(t *testing.T) {
 
 		// read once
 		actual := store.GetLeague()
-		expected := storage.League{{"Cleo", 10}, {"Chris", 33}}
+		expected := storage.League{{"Chris", 33}, {"Cleo", 10}}
 		assertLeague(t, actual, expected)
 
 		// read once more
 		actual = store.GetLeague()
-		expected = storage.League{{"Cleo", 10}, {"Chris", 33}}
+		expected = storage.League{{"Chris", 33}, {"Cleo", 10}}
 		assertLeague(t, actual, expected)
 		assertNoError(t, err)
 	})
