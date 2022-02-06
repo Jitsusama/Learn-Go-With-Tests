@@ -4,7 +4,6 @@ import (
 	"embed"
 	"encoding/json"
 	"fmt"
-	"io"
 	"jitsusama/lgwt/app/pkg/game"
 	"net/http"
 	"strconv"
@@ -63,7 +62,7 @@ func (p *PlayerServer) webSocketHandler(w http.ResponseWriter, r *http.Request) 
 
 	playersMessage := s.WaitForMessage()
 	players, _ := strconv.Atoi(playersMessage)
-	p.game.Start(players, io.Discard)
+	p.game.Start(players, s)
 
 	winnerMessage := s.WaitForMessage()
 	p.game.Finish(winnerMessage)

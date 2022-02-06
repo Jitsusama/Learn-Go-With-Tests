@@ -31,3 +31,11 @@ func (s *incomingSocket) WaitForMessage() string {
 	}
 	return string(msg)
 }
+
+func (s *incomingSocket) Write(p []byte) (n int, err error) {
+	err = s.WriteMessage(websocket.TextMessage, p)
+	if err != nil {
+		return 0, err
+	}
+	return len(p), nil
+}

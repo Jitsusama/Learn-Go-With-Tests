@@ -94,9 +94,9 @@ func TestGame(t *testing.T) {
 
 		assertStatus(t, res.Code, http.StatusOK)
 	})
-	t.Run("handles a 3 player game and Ruth being declared the winner", func(t *testing.T) {
+	t.Run("handles a 3 player game, sending blind update messages and allowing Ruth to be declared the winner", func(t *testing.T) {
 		store := &test.StubbedPlayerStore{}
-		game := &test.SpiedGame{}
+		game := test.NewSpiedGame([]byte("Blind is 100"))
 		server := httptest.NewServer(makeServer(t, store, game))
 		defer server.Close()
 
@@ -105,10 +105,15 @@ func TestGame(t *testing.T) {
 
 		sendToWebSocket(t, ws, "3")
 		sendToWebSocket(t, ws, "Ruth")
-		time.Sleep(10 * time.Millisecond)
 
 		game.AssertStart(t, 3)
 		game.AssertFinish(t, "Ruth")
+		within(t, 10*time.Millisecond, func() {
+			_, actual, _ := ws.ReadMessage()
+			if string(actual) != "Blind is 100" {
+				t.Errorf("blind: got %q want %q", string(actual), "Blind is 100")
+			}
+		})
 	})
 }
 
@@ -183,5 +188,21 @@ func assertLeagueBody(t testing.TB, body *bytes.Buffer, expected []game.Player) 
 	}
 	if !reflect.DeepEqual(actual, expected) {
 		t.Errorf("got %v want %v", actual, expected)
+	}
+}
+
+func within(t testing.TB, d time.Duration, assert func()) {
+	t.Helper()
+
+	done := make(chan struct{}, 1)
+	go func() {
+		assert()
+		done <- struct{}{}
+	}()
+
+	select {
+	case <-time.After(d):
+		t.Error("timed out")
+	case <-done:
 	}
 }
