@@ -8,6 +8,7 @@ import (
 	"jitsusama/lgwt/app/pkg/game"
 	"jitsusama/lgwt/app/pkg/server"
 	"jitsusama/lgwt/app/pkg/storage"
+	test "jitsusama/lgwt/app/pkg/testing"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -21,7 +22,7 @@ func TestRecordsTotalWinsAndAllowsTotalRetrieval(t *testing.T) {
 	file, cleanup := createFile(t, "[]")
 	defer cleanup()
 	str, _ := storage.NewFilePlayerStore(file)
-	svr, _ := server.NewPlayerServer(str)
+	svr, _ := server.NewPlayerServer(str, &test.SpiedGame{})
 
 	svr.ServeHTTP(httptest.NewRecorder(), postPlayer(player))
 	svr.ServeHTTP(httptest.NewRecorder(), postPlayer(player))

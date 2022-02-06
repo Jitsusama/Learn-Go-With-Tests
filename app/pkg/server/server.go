@@ -4,34 +4,33 @@ import (
 	"embed"
 	"encoding/json"
 	"fmt"
+	"io"
 	"jitsusama/lgwt/app/pkg/game"
 	"net/http"
+	"strconv"
 	"strings"
 	"text/template"
-
-	"github.com/gorilla/websocket"
 )
 
-//go:embed index.html
-var templates embed.FS
-var upgrader = websocket.Upgrader{
-	ReadBufferSize:  1024,
-	WriteBufferSize: 1024,
-}
+var (
+	//go:embed index.html
+	templates embed.FS
+)
 
 type PlayerServer struct {
 	store  game.PlayerStore
 	router *http.ServeMux
+	game   game.Game
 	tmpl   *template.Template
 }
 
-func NewPlayerServer(store game.PlayerStore) (*PlayerServer, error) {
+func NewPlayerServer(store game.PlayerStore, game game.Game) (*PlayerServer, error) {
 	tmpl, err := template.ParseFS(templates, "index.html")
 	if err != nil {
 		return nil, fmt.Errorf("problem opening templates: %v", err)
 	}
 
-	p := &PlayerServer{store, http.NewServeMux(), tmpl}
+	p := &PlayerServer{store, http.NewServeMux(), game, tmpl}
 	p.router.Handle("/league", http.HandlerFunc(p.leagueHandler))
 	p.router.Handle("/players/", http.HandlerFunc(p.playerHandler))
 	p.router.Handle("/game", http.HandlerFunc(p.gameHandler))
@@ -60,9 +59,14 @@ func (p *PlayerServer) gameHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *PlayerServer) webSocketHandler(w http.ResponseWriter, r *http.Request) {
-	conn, _ := upgrader.Upgrade(w, r, nil)
-	_, m, _ := conn.ReadMessage()
-	p.store.IncrementScore(string(m))
+	s := newIncomingSocket(w, r)
+
+	playersMessage := s.WaitForMessage()
+	players, _ := strconv.Atoi(playersMessage)
+	p.game.Start(players, io.Discard)
+
+	winnerMessage := s.WaitForMessage()
+	p.game.Finish(winnerMessage)
 }
 
 func (p *PlayerServer) scoreRetrieval(w http.ResponseWriter, player string) {

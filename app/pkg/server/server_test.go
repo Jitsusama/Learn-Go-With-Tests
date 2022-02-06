@@ -19,7 +19,7 @@ import (
 
 func TestScoreRetrieval(t *testing.T) {
 	store := test.NewStubbedPlayerStore(map[string]int{"Pepper": 20, "Floyd": 10}, nil)
-	server := makeServer(t, store)
+	server := makeServer(t, store, &test.SpiedGame{})
 
 	t.Run("retrieve pepper's score", func(t *testing.T) {
 		request := getPlayer("Pepper")
@@ -51,7 +51,7 @@ func TestScoreRetrieval(t *testing.T) {
 
 func TestScoreStorage(t *testing.T) {
 	store := &test.StubbedPlayerStore{}
-	server := makeServer(t, store)
+	server := makeServer(t, store, &test.SpiedGame{})
 
 	t.Run("records scores", func(t *testing.T) {
 		player := "Pepper"
@@ -72,7 +72,7 @@ func TestLeagueRetrieval(t *testing.T) {
 			{Name: "Test", Wins: 14},
 		}
 		store := test.NewStubbedPlayerStore(nil, expected)
-		server := makeServer(t, store)
+		server := makeServer(t, store, &test.SpiedGame{})
 
 		request := getLeague()
 		response := httptest.NewRecorder()
@@ -86,7 +86,7 @@ func TestLeagueRetrieval(t *testing.T) {
 
 func TestGame(t *testing.T) {
 	t.Run("presents game HTML page", func(t *testing.T) {
-		server := makeServer(t, &test.StubbedPlayerStore{})
+		server := makeServer(t, &test.StubbedPlayerStore{}, &test.SpiedGame{})
 
 		req, _ := http.NewRequest("GET", "/game", nil)
 		res := httptest.NewRecorder()
@@ -94,23 +94,27 @@ func TestGame(t *testing.T) {
 
 		assertStatus(t, res.Code, http.StatusOK)
 	})
-	t.Run("registers win over websocket connection", func(t *testing.T) {
+	t.Run("handles a 3 player game and Ruth being declared the winner", func(t *testing.T) {
 		store := &test.StubbedPlayerStore{}
-		server := httptest.NewServer(makeServer(t, store))
+		game := &test.SpiedGame{}
+		server := httptest.NewServer(makeServer(t, store, game))
 		defer server.Close()
 
 		ws := getWebSocket(t, server.URL)
 		defer ws.Close()
+
+		sendToWebSocket(t, ws, "3")
 		sendToWebSocket(t, ws, "Ruth")
 		time.Sleep(10 * time.Millisecond)
 
-		test.AssertPlayerWin(t, store, "Ruth")
+		game.AssertStart(t, 3)
+		game.AssertFinish(t, "Ruth")
 	})
 }
 
-func makeServer(t *testing.T, store game.PlayerStore) *server.PlayerServer {
+func makeServer(t *testing.T, store game.PlayerStore, game game.Game) *server.PlayerServer {
 	t.Helper()
-	server, err := server.NewPlayerServer(store)
+	server, err := server.NewPlayerServer(store, game)
 	if err != nil {
 		t.Fatalf("server creation failure: %v", err)
 	}
