@@ -20,17 +20,26 @@ type Cli struct {
 }
 
 func (c *Cli) PlayGame() {
-	players := c.getPlayerCount()
+	players, err := c.getPlayerCount()
+	if err != nil {
+		return
+	}
 
 	c.game.Start(players)
 	winner := c.waitForWin()
 	c.game.Finish(winner)
 }
 
-func (c *Cli) getPlayerCount() int {
+func (c *Cli) getPlayerCount() (int, error) {
 	fmt.Fprint(c.stdout, "Please enter the number of players: ")
-	players, _ := strconv.Atoi(c.readLine())
-	return players
+
+	players, err := strconv.Atoi(c.readLine())
+	if err != nil {
+		fmt.Fprint(c.stdout, "Bad value received for number of players, please try again with a number")
+		return 0, err
+	}
+
+	return players, nil
 }
 
 func (c *Cli) waitForWin() string {

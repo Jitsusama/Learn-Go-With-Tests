@@ -7,6 +7,11 @@ import (
 	"testing"
 )
 
+var (
+	initialPrompt      = "Please enter the number of players: "
+	invalidInputPrompt = "Bad value received for number of players, please try again with a number"
+)
+
 func TestCli(t *testing.T) {
 	t.Run("records chris winning", func(t *testing.T) {
 		stdout := &bytes.Buffer{}
@@ -41,22 +46,41 @@ func TestCli(t *testing.T) {
 		c.PlayGame()
 
 		actual := stdout.String()
-		expected := "Please enter the number of players: "
-		if actual != expected {
-			t.Errorf("prompt: got %q want %q", actual, expected)
+		if actual != initialPrompt {
+			t.Errorf("prompt: got %q want %q", actual, initialPrompt)
 		}
 		if game.startedWith != 7 {
 			t.Errorf("start: want %d got %d", 7, game.startedWith)
 		}
 	})
+	t.Run("complains when non-numeric number is entered", func(t *testing.T) {
+		stdout := &bytes.Buffer{}
+		stdin := strings.NewReader("Pies\n")
+		game := &spiedGame{}
+
+		c := cli.NewCli(stdin, stdout, game)
+		c.PlayGame()
+
+		if game.started {
+			t.Errorf("game was started")
+		}
+
+		actual := stdout.String()
+		expected := initialPrompt + invalidInputPrompt
+		if actual != expected {
+			t.Errorf("got %q want %q", actual, expected)
+		}
+	})
 }
 
 type spiedGame struct {
+	started      bool
 	startedWith  int
 	finishedWith string
 }
 
 func (g *spiedGame) Start(players int) {
+	g.started = true
 	g.startedWith = players
 }
 
