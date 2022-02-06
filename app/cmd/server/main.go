@@ -18,8 +18,11 @@ func main() {
 		log.Fatalf("problem creating store: %v", err)
 	}
 
-	server := server.NewPlayerServer(store)
+	server, err := server.NewPlayerServer(store)
+	if err != nil {
+		log.Fatalf("failed to create server: %v", err)
+	}
 	if err := http.ListenAndServe(":5000", server); err != nil {
-		log.Fatalf("could not listen on port 5000: %v", err)
+		log.Fatalf("failed to start server: %v", err)
 	}
 }

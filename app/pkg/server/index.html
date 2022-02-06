@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Let's Play Poker</title>
+  </head>
+  <body>
+    <main>
+      <form>
+        <label>Winner <input type="text" name="winner" /></label>
+        <button type="button">Declare Winner</button>
+      </form>
+    </main>
+    <script>
+      const button = document.querySelector("button");
+      const input = document.querySelector("input[type=text]");
+      const conn = new WebSocket(`ws://${document.location.host}/ws`);
+
+      button.addEventListener("click", (event) => {
+        event.preventDefault();
+        if (conn.readyState === conn.OPEN) conn.send(input.value);
+        else console.error("WebSocket connection is not open");
+      });
+    </script>
+  </body>
+</html>

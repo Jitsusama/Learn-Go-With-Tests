@@ -21,7 +21,7 @@ func TestRecordsTotalWinsAndAllowsTotalRetrieval(t *testing.T) {
 	file, cleanup := createFile(t, "[]")
 	defer cleanup()
 	str, _ := storage.NewFilePlayerStore(file)
-	svr := server.NewPlayerServer(str)
+	svr, _ := server.NewPlayerServer(str)
 
 	svr.ServeHTTP(httptest.NewRecorder(), postPlayer(player))
 	svr.ServeHTTP(httptest.NewRecorder(), postPlayer(player))
