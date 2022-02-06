@@ -1,4 +1,4 @@
-package storage
+package game
 
 type PlayerStore interface {
 	GetScore(name string) int

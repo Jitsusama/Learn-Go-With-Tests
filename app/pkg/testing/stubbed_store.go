@@ -1,18 +1,18 @@
 package testing
 
 import (
-	"jitsusama/lgwt/app/pkg/storage"
+	"jitsusama/lgwt/app/pkg/game"
 	"testing"
 )
 
-func NewStubbedPlayerStore(scores map[string]int, league storage.League) *StubbedPlayerStore {
+func NewStubbedPlayerStore(scores map[string]int, league game.League) *StubbedPlayerStore {
 	return &StubbedPlayerStore{scores, nil, league}
 }
 
 type StubbedPlayerStore struct {
 	scores map[string]int
 	wins   []string
-	league storage.League
+	league game.League
 }
 
 func (s *StubbedPlayerStore) GetScore(name string) int {
@@ -23,7 +23,7 @@ func (s *StubbedPlayerStore) IncrementScore(name string) {
 	s.wins = append(s.wins, name)
 }
 
-func (s *StubbedPlayerStore) GetLeague() storage.League {
+func (s *StubbedPlayerStore) GetLeague() game.League {
 	return s.league
 }
 

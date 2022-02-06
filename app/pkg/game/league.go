@@ -1,4 +1,4 @@
-package storage
+package game
 
 type League []Player
 

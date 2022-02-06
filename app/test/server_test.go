@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"jitsusama/lgwt/app/pkg/game"
 	"jitsusama/lgwt/app/pkg/server"
 	"jitsusama/lgwt/app/pkg/storage"
 	"net/http"
@@ -39,7 +40,7 @@ func TestRecordsTotalWinsAndAllowsTotalRetrieval(t *testing.T) {
 		svr.ServeHTTP(response, getLeague())
 
 		assertStatus(t, response.Code, 200)
-		assertLeagueBody(t, response.Body, []storage.Player{
+		assertLeagueBody(t, response.Body, []game.Player{
 			{Name: "Pepper", Wins: 3},
 		})
 	})
@@ -75,9 +76,9 @@ func assertPlayerBody(t testing.TB, body *bytes.Buffer, expected string) {
 	}
 }
 
-func assertLeagueBody(t testing.TB, body *bytes.Buffer, expected []storage.Player) {
+func assertLeagueBody(t testing.TB, body *bytes.Buffer, expected []game.Player) {
 	t.Helper()
-	var actual []storage.Player
+	var actual []game.Player
 	if err := json.NewDecoder(body).Decode(&actual); err != nil {
 		t.Fatalf("unable to parse %q: '%v'", body, err)
 	}

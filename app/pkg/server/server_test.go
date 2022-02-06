@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"jitsusama/lgwt/app/pkg/game"
 	"jitsusama/lgwt/app/pkg/server"
-	"jitsusama/lgwt/app/pkg/storage"
 	test "jitsusama/lgwt/app/pkg/testing"
 	"net/http"
 	"net/http/httptest"
@@ -63,7 +63,7 @@ func TestScoreStorage(t *testing.T) {
 
 func TestLeagueRetrieval(t *testing.T) {
 	t.Run("retrieves scores of entire league", func(t *testing.T) {
-		expected := []storage.Player{
+		expected := []game.Player{
 			{Name: "Cleo", Wins: 32}, {Name: "Chris", Wins: 20},
 			{Name: "Test", Wins: 14},
 		}
@@ -118,9 +118,9 @@ func assertPlayerBody(t testing.TB, body *bytes.Buffer, expected string) {
 	}
 }
 
-func assertLeagueBody(t testing.TB, body *bytes.Buffer, expected []storage.Player) {
+func assertLeagueBody(t testing.TB, body *bytes.Buffer, expected []game.Player) {
 	t.Helper()
-	var actual []storage.Player
+	var actual []game.Player
 	if err := json.NewDecoder(body).Decode(&actual); err != nil {
 		t.Fatalf("unable to parse %q: '%v'", body, err)
 	}

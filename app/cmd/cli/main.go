@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"jitsusama/lgwt/app/pkg/cli"
+	"jitsusama/lgwt/app/pkg/game"
 	"jitsusama/lgwt/app/pkg/storage"
 	"log"
 	"os"
@@ -20,6 +21,8 @@ func main() {
 		log.Fatalf("problem creating store: %v", err)
 	}
 
-	game := cli.NewCli(store, os.Stdin, os.Stdout, cli.BlindAlerterFunc(cli.StdOutAlerter))
-	game.PlayPoker()
+	alerter := game.BlindAlerterFunc(game.StdOutAlerter)
+	game := game.NewPokerGame(alerter, store)
+	cli := cli.NewCli(os.Stdin, os.Stdout, game)
+	cli.PlayPoker()
 }

@@ -4,41 +4,38 @@ import (
 	"bufio"
 	"fmt"
 	"io"
-	"jitsusama/lgwt/app/pkg/storage"
+	"jitsusama/lgwt/app/pkg/game"
+	"strconv"
 	"strings"
-	"time"
 )
 
-func NewCli(store storage.PlayerStore, stdin io.Reader, stdout io.Writer, alerter BlindAlerter) *Cli {
-	return &Cli{store, bufio.NewScanner(stdin), stdout, alerter}
+func NewCli(stdin io.Reader, stdout io.Writer, game game.Game) *Cli {
+	return &Cli{bufio.NewScanner(stdin), stdout, game}
 }
 
 type Cli struct {
-	store  storage.PlayerStore
 	stdin  *bufio.Scanner
 	stdout io.Writer
-	alert  BlindAlerter
+	game   game.Game
 }
 
 func (c *Cli) PlayPoker() {
+	players := c.getPlayerCount()
+
+	c.game.Start(players)
+	winner := c.waitForWin()
+	c.game.Finish(winner)
+}
+
+func (c *Cli) getPlayerCount() int {
 	fmt.Fprint(c.stdout, "Please enter the number of players: ")
-	c.scheduleBlindAlerts()
-	c.waitForWin()
+	players, _ := strconv.Atoi(c.readLine())
+	return players
 }
 
-func (c *Cli) waitForWin() {
+func (c *Cli) waitForWin() string {
 	line := c.readLine()
-	player := parseLine(line)
-	c.store.IncrementScore(player)
-}
-
-func (c *Cli) scheduleBlindAlerts() {
-	blinds := []int{100, 200, 300, 400, 500, 600, 800, 1000, 2000, 4000, 8000}
-	blindTime := 0 * time.Second
-	for _, blind := range blinds {
-		c.alert.ScheduleAlertAt(blindTime, blind)
-		blindTime = blindTime + 10*time.Minute
-	}
+	return parseLine(line)
 }
 
 func (c *Cli) readLine() string {

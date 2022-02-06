@@ -2,6 +2,7 @@ package storage_test
 
 import (
 	"io/ioutil"
+	"jitsusama/lgwt/app/pkg/game"
 	"jitsusama/lgwt/app/pkg/storage"
 	"os"
 	"reflect"
@@ -19,12 +20,18 @@ func TestFileStorage(t *testing.T) {
 
 		// read once
 		actual := store.GetLeague()
-		expected := storage.League{{"Chris", 33}, {"Cleo", 10}}
+		expected := game.League{
+			*game.NewPlayer("Chris", 33),
+			*game.NewPlayer("Cleo", 10),
+		}
 		assertLeague(t, actual, expected)
 
 		// read once more
 		actual = store.GetLeague()
-		expected = storage.League{{"Chris", 33}, {"Cleo", 10}}
+		expected = game.League{
+			*game.NewPlayer("Chris", 33),
+			*game.NewPlayer("Cleo", 10),
+		}
 		assertLeague(t, actual, expected)
 		assertNoError(t, err)
 	})
@@ -85,7 +92,7 @@ func TestFileStorage(t *testing.T) {
 	})
 }
 
-func assertLeague(t testing.TB, actual storage.League, expected storage.League) {
+func assertLeague(t testing.TB, actual game.League, expected game.League) {
 	t.Helper()
 	if !reflect.DeepEqual(actual, expected) {
 		t.Errorf("got %v want %v", actual, expected)

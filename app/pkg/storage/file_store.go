@@ -3,6 +3,7 @@ package storage
 import (
 	"encoding/json"
 	"fmt"
+	"jitsusama/lgwt/app/pkg/game"
 	"os"
 	"sort"
 )
@@ -24,7 +25,7 @@ func NewFilePlayerStore(database *os.File) (*FilePlayerStore, error) {
 
 type FilePlayerStore struct {
 	database *json.Encoder
-	league   League
+	league   game.League
 }
 
 func (f *FilePlayerStore) GetScore(name string) int {
@@ -40,12 +41,12 @@ func (f *FilePlayerStore) IncrementScore(name string) {
 	if player != nil {
 		player.Wins++
 	} else {
-		f.league = append(f.league, Player{name, 1})
+		f.league = append(f.league, *game.NewPlayer(name, 1))
 	}
 	f.database.Encode(f.league)
 }
 
-func (f *FilePlayerStore) GetLeague() League {
+func (f *FilePlayerStore) GetLeague() game.League {
 	sort.Slice(f.league, func(i, j int) bool {
 		return f.league[i].Wins > f.league[j].Wins
 	})
@@ -66,8 +67,8 @@ func sanitizeDatabase(database *os.File) error {
 	return nil
 }
 
-func decodeDatabase(database *os.File) (League, error) {
-	var league League
+func decodeDatabase(database *os.File) (game.League, error) {
+	var league game.League
 	if err := json.NewDecoder(database).Decode(&league); err != nil {
 		return nil, fmt.Errorf("json parsing error while reading %q: %v", database.Name(), err)
 	}
