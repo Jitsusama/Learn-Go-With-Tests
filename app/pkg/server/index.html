@@ -6,20 +6,67 @@
   </head>
   <body>
     <main>
-      <form>
-        <label>Winner <input type="text" name="winner" /></label>
-        <button type="button">Declare Winner</button>
-      </form>
+      <div id="start">
+        <form>
+          <label>
+            Number of Players:&nbsp;
+            <input type="number" name="players" />
+          </label>
+          <button type="button">Start</button>
+        </form>
+      </div>
+      <div id="middle">
+        <form>
+          <label>Winner <input type="text" name="winner" /></label>
+          <button type="button">Declare Winner</button>
+        </form>
+        <div id="blind"></div>
+      </div>
+      <div id="end">
+        <h1>Another great game of poker everyone!</h1>
+        <p><a href="/league">Go check the league table</a>.</p>
+      </div>
     </main>
     <script>
-      const button = document.querySelector("button");
-      const input = document.querySelector("input[type=text]");
-      const conn = new WebSocket(`ws://${document.location.host}/ws`);
+      // starting elements
+      const start = document.querySelector("#start");
+      const countField = start.querySelector("input[type=number]");
+      const startButton = start.querySelector("button");
 
-      button.addEventListener("click", (event) => {
-        event.preventDefault();
-        if (conn.readyState === conn.OPEN) conn.send(input.value);
-        else console.error("WebSocket connection is not open");
+      // in progress elements
+      const middle = document.querySelector("#middle");
+      const nameField = middle.querySelector("input[type=text]");
+      const winButton = middle.querySelector("button");
+      const blindText = middle.querySelector("#blind");
+      middle.hidden = true;
+
+      // end elements
+      const end = document.querySelector("#end");
+      end.hidden = true;
+
+      startButton.addEventListener("click", (event) => {
+        start.hidden = true;
+        middle.hidden = false;
+
+        const conn = new WebSocket(`ws://${document.location.host}/ws`);
+        conn.addEventListener("open", (event) => {
+          conn.send(countField.value);
+        });
+        conn.addEventListener("message", (event) => {
+          blindText.innerText = event.data;
+        });
+        conn.addEventListener("close", (event) => {
+          blindText.innerText = "Connection closed.";
+        });
+
+        winButton.addEventListener("click", (event) => {
+          event.preventDefault();
+          if (conn.readyState === conn.OPEN) conn.send(nameField.value);
+          else console.error("WebSocket connection is not open");
+          start.hidden = true;
+          middle.hidden = true;
+          end.hidden = false;
+        });
       });
     </script>
   </body>
