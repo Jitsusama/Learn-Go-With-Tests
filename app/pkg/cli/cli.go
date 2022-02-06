@@ -25,7 +25,7 @@ func (c *Cli) PlayGame() {
 		return
 	}
 
-	c.game.Start(players)
+	c.game.Start(players, c.stdout)
 	winner := c.waitForWin()
 	c.game.Finish(winner)
 }

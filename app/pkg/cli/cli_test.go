@@ -2,6 +2,7 @@ package cli_test
 
 import (
 	"bytes"
+	"io"
 	"jitsusama/lgwt/app/pkg/cli"
 	"strings"
 	"testing"
@@ -79,7 +80,7 @@ type spiedGame struct {
 	finishedWith string
 }
 
-func (g *spiedGame) Start(players int) {
+func (g *spiedGame) Start(players int, alertDestination io.Writer) {
 	g.started = true
 	g.startedWith = players
 }

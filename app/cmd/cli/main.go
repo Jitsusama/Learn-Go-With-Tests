@@ -21,7 +21,7 @@ func main() {
 		log.Fatalf("problem creating store: %v", err)
 	}
 
-	alerter := game.BlindAlerterFunc(game.StdOutAlerter)
+	alerter := game.BlindAlerterFunc(game.GenericAlerter)
 	game := game.NewPokerGame(alerter, store)
 	c := cli.NewCli(os.Stdin, os.Stdout, game)
 	c.PlayGame()

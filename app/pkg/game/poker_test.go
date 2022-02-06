@@ -2,6 +2,7 @@ package game_test
 
 import (
 	"fmt"
+	"io"
 	"jitsusama/lgwt/app/pkg/game"
 	test "jitsusama/lgwt/app/pkg/testing"
 	"testing"
@@ -14,7 +15,7 @@ func TestPoker(t *testing.T) {
 		store := &test.StubbedPlayerStore{}
 
 		game := game.NewPokerGame(alerter, store)
-		game.Start(5)
+		game.Start(5, io.Discard)
 
 		cases := []scheduledAlert{
 			{0 * time.Second, 100},
@@ -36,7 +37,7 @@ func TestPoker(t *testing.T) {
 		store := &test.StubbedPlayerStore{}
 
 		game := game.NewPokerGame(alerter, store)
-		game.Start(7)
+		game.Start(7, io.Discard)
 
 		cases := []scheduledAlert{
 			{0 * time.Second, 100},
@@ -91,6 +92,6 @@ type spiedBlindAlerter struct {
 	alerts []scheduledAlert
 }
 
-func (s *spiedBlindAlerter) ScheduleAlertAt(duration time.Duration, amount int) {
-	s.alerts = append(s.alerts, scheduledAlert{duration, amount})
+func (s *spiedBlindAlerter) ScheduleAlertAt(d time.Duration, a int, t io.Writer) {
+	s.alerts = append(s.alerts, scheduledAlert{d, a})
 }
