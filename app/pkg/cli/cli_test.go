@@ -13,8 +13,8 @@ func TestCli(t *testing.T) {
 		stdin := strings.NewReader("5\nChris wins\n")
 		game := &spiedGame{}
 
-		cli := cli.NewCli(stdin, stdout, game)
-		cli.PlayPoker()
+		c := cli.NewCli(stdin, stdout, game)
+		c.PlayGame()
 
 		if game.finishedWith != "Chris" {
 			t.Errorf("end: got %q want %q", game.finishedWith, "Chris")
@@ -25,8 +25,8 @@ func TestCli(t *testing.T) {
 		stdin := strings.NewReader("5\nCleo wins\n")
 		game := &spiedGame{}
 
-		cli := cli.NewCli(stdin, stdout, game)
-		cli.PlayPoker()
+		c := cli.NewCli(stdin, stdout, game)
+		c.PlayGame()
 
 		if game.finishedWith != "Cleo" {
 			t.Errorf("end: got %q want %q", game.finishedWith, "Cleo")
@@ -37,8 +37,8 @@ func TestCli(t *testing.T) {
 		stdin := strings.NewReader("7\n")
 		game := &spiedGame{}
 
-		cli := cli.NewCli(stdin, stdout, game)
-		cli.PlayPoker()
+		c := cli.NewCli(stdin, stdout, game)
+		c.PlayGame()
 
 		actual := stdout.String()
 		expected := "Please enter the number of players: "

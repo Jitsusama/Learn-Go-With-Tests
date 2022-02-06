@@ -19,7 +19,7 @@ type Cli struct {
 	game   game.Game
 }
 
-func (c *Cli) PlayPoker() {
+func (c *Cli) PlayGame() {
 	players := c.getPlayerCount()
 
 	c.game.Start(players)

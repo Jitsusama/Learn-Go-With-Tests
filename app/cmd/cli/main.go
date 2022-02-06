@@ -23,6 +23,6 @@ func main() {
 
 	alerter := game.BlindAlerterFunc(game.StdOutAlerter)
 	game := game.NewPokerGame(alerter, store)
-	cli := cli.NewCli(os.Stdin, os.Stdout, game)
-	cli.PlayPoker()
+	c := cli.NewCli(os.Stdin, os.Stdout, game)
+	c.PlayGame()
 }
